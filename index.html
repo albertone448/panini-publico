@@ -513,25 +513,96 @@
     const codes = raw.split(/[\n,]+/).map(c => c.trim().toUpperCase()).filter(Boolean);
     if (!codes.length) return;
 
-    let html = '';
+    const disponibles = [];
+    const noDisponibles = [];
+    const invalidos = [];
+
     codes.forEach(code => {
       const data = STICKER_DATA[code];
-      if (!data) {
+      if (!data) { invalidos.push({ code }); return; }
+      const inv   = inventory[code] || { qty: 0, price: 150 };
+      const avail = inv.qty > 0;
+      const price = inv.price ?? 150;
+      const item  = { code, name: data.name, teamName: data.teamName, price };
+      avail ? disponibles.push(item) : noDisponibles.push(item);
+    });
+
+    const total = disponibles.reduce((s, r) => s + r.price, 0);
+
+    let html = '';
+
+    // DISPONIBLES
+    if (disponibles.length > 0) {
+      html += `<div style="font-size:12px;font-weight:600;color:#4ade80;margin-bottom:8px;margin-top:4px">✅ Disponibles</div>`;
+      disponibles.forEach(r => {
+        html += `<div class="check-result have">
+          <div class="cr-left">
+            <span class="cr-code">${r.code}</span>
+            <span class="cr-name">${r.name} · ${r.teamName}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+            <span class="cr-status">✓ Disponible</span>
+            <span style="font-family:'DM Mono',monospace;font-size:12px;color:#f97316;font-weight:600">₡${r.price.toLocaleString()}</span>
+          </div>
+        </div>`;
+      });
+
+      // Total
+      html += `<div style="display:flex;justify-content:space-between;padding:10px 14px;background:#1a1e27;border:1px solid #2f3545;border-radius:8px;margin:8px 0 14px;font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#f97316">
+        <span>Total (${disponibles.length} postal${disponibles.length===1?'':'es'})</span>
+        <span>₡${total.toLocaleString()}</span>
+      </div>`;
+    }
+
+    // NO DISPONIBLES
+    if (noDisponibles.length > 0) {
+      html += `<div style="font-size:12px;font-weight:600;color:#f87171;margin-bottom:8px">❌ No disponibles</div>`;
+      noDisponibles.forEach(r => {
+        html += `<div class="check-result none">
+          <div class="cr-left">
+            <span class="cr-code">${r.code}</span>
+            <span class="cr-name">${r.name} · ${r.teamName}</span>
+          </div>
+          <span class="cr-status">✗ No disponible</span>
+        </div>`;
+      });
+      html += `<div style="margin-bottom:14px"></div>`;
+    }
+
+    // INVÁLIDOS
+    if (invalidos.length > 0) {
+      html += `<div style="font-size:12px;font-weight:600;color:#4f5668;margin-bottom:8px">⚠️ Códigos no válidos</div>`;
+      invalidos.forEach(r => {
         html += `<div class="check-result invalid">
-          <div class="cr-left"><span class="cr-code">${code}</span><span class="cr-name">Código no existe</span></div>
+          <div class="cr-left"><span class="cr-code">${r.code}</span><span class="cr-name">No existe en el álbum</span></div>
           <span class="cr-status">—</span>
         </div>`;
-        return;
-      }
-      const avail = (inventory[code]?.qty ?? 0) > 0;
-      html += `<div class="check-result ${avail ? 'have' : 'none'}">
-        <div class="cr-left">
-          <span class="cr-code">${code}</span>
-          <span class="cr-name">${data.name} · ${data.teamName}</span>
-        </div>
-        <span class="cr-status">${avail ? '✓ Disponible' : '✗ No disponible'}</span>
-      </div>`;
-    });
+      });
+      html += `<div style="margin-bottom:14px"></div>`;
+    }
+
+    // BOTÓN WHATSAPP (solo si hay disponibles)
+    if (disponibles.length > 0) {
+      const codigosLista = disponibles.map(r => r.code).join(', ');
+
+      const lineas = [];
+      lineas.push('Hola! Me interesa comprar estas postales:');
+      lineas.push('');
+      disponibles.forEach(r => {
+        lineas.push(`  • ${r.code} — ${r.name} (₡${r.price.toLocaleString()})`);
+      });
+      lineas.push('');
+      lineas.push(`Total: ₡${total.toLocaleString()}`);
+      lineas.push('');
+      lineas.push(`Códigos: ${codigosLista}`);
+
+      const mensaje = encodeURIComponent(lineas.join('\n'));
+      const waUrl   = `https://wa.me/50685109300?text=${mensaje}`;
+
+      html += `<a href="${waUrl}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#128C7E;color:#fff;text-decoration:none;padding:13px 20px;border-radius:8px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;transition:background 0.12s" onmouseover="this.style.background='#0f7a6d'" onmouseout="this.style.background='#128C7E'">
+        💬 Enviarme mi lista por WhatsApp
+      </a>`;
+    }
 
     document.getElementById('checkResults').innerHTML = html;
   };
