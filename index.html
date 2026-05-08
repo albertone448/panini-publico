@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Postales Panini — Mundial 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #13161c;
+    --surface2: #1a1e27;
+    --border: #252a35;
+    --border2: #2f3545;
+    --text: #e8eaf0;
+    --text2: #8891a8;
+    --text3: #4f5668;
+    --green-bg: #052011;
+    --accent: #f97316;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; min-height: 100vh; }
+
+  /* HEADER */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1px; color: var(--accent); }
+  .logo span { color: var(--text2); font-size: 14px; font-family: 'DM Mono', monospace; margin-left: 8px; }
+  .header-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+  /* MAIN */
+  .main { padding: 16px; max-width: 960px; margin: 0 auto; }
+
+  /* SEARCH + CHECK */
+  .search-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  .search-box h3 { font-size: 13px; font-weight: 600; margin-bottom: 10px; color: var(--text2); }
+  input[type="text"], textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    color: var(--text);
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.12s;
+    margin-bottom: 10px;
+  }
+  textarea { resize: vertical; min-height: 70px; font-family: 'DM Mono', monospace; font-size: 12px; margin-bottom: 10px; }
+  input[type="text"]:focus, textarea:focus { border-color: var(--accent); }
+  input::placeholder, textarea::placeholder { color: var(--text3); }
+  .btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+    transition: background 0.12s;
+  }
+  .btn:hover { background: #ea580c; }
+
+  /* CHECK RESULTS */
+  .check-result {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    border-radius: 7px;
+    margin-bottom: 6px;
+    border: 1px solid transparent;
+  }
+  .check-result.have { background: #052011; border-color: rgba(22,163,74,0.25); }
+  .check-result.none { background: #1a0505; border-color: rgba(220,38,38,0.2); }
+  .check-result.invalid { background: var(--surface); border-color: var(--border); }
+  .cr-left { display: flex; flex-direction: column; gap: 2px; }
+  .cr-code { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; }
+  .cr-name { font-size: 11px; color: var(--text3); }
+  .cr-status { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; }
+  .have .cr-status { color: #4ade80; }
+  .none .cr-status { color: #f87171; }
+  .invalid .cr-status { color: var(--text3); }
+
+  /* FILTERS */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .chip {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border2);
+    background: var(--surface);
+    color: var(--text3);
+    white-space: nowrap;
+    transition: all 0.12s;
+    user-select: none;
+  }
+  .chip.active { background: var(--accent); color: #fff; border-color: #ea580c; }
+  .chip:hover:not(.active) { color: var(--text); border-color: var(--text3); }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* TEAM BLOCKS */
+  .inv-container { max-height: 70vh; overflow-y: auto; padding-right: 4px; }
+  .inv-container::-webkit-scrollbar { width: 4px; }
+  .inv-container::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+  .team-block {
+    margin-bottom: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .team-header {
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .team-name { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+  .team-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    background: var(--border);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .team-avail { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); }
+
+  .sticker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    gap: 4px;
+    padding: 10px;
+  }
+  .sticker {
+    padding: 6px 4px;
+    border-radius: 6px;
+    text-align: center;
+    border: 1px solid transparent;
+    position: relative;
+  }
+  .sticker.have { background: #052011; border-color: rgba(22,163,74,0.3); }
+  .sticker.none { background: #111318; border-color: rgba(255,255,255,0.05); }
+  .sticker-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .sticker.have .sticker-code { color: #4ade80; }
+  .sticker.none .sticker-code { color: var(--text3); }
+  .sticker-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+  .sticker.have .sticker-dot { background: rgba(22,163,74,0.5); }
+  .sticker.none .sticker-dot { background: rgba(255,255,255,0.08); }
+
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--text3); font-size: 13px; }
+  .empty-icon { font-size: 40px; margin-bottom: 10px; }
+
+  /* LOADING */
+  .loading { text-align: center; padding: 60px 20px; color: var(--text3); }
+  .loading-dot { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--accent); letter-spacing: 2px; }
+
+  /* CONTACT HINT */
+  .contact-hint {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .contact-hint p {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 12px;
+  }
+  .wa-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #128C7E;
+    color: #fff;
+    text-decoration: none;
+    padding: 11px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.12s;
+  }
+  .wa-btn:hover { background: #0f7a6d; }
+
+  @media (max-width: 500px) {
+    .sticker-grid { grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">Postales Panini <span>Mundial 2026</span></div>
+  <div class="header-sub">Consultá disponibilidad en tiempo real</div>
+</div>
+
+<div class="main">
+
+  <!-- BUSCAR POR NOMBRE/EQUIPO -->
+  <div class="search-box">
+    <h3>🔍 Buscar en el catálogo</h3>
+    <input type="text" id="searchInput" placeholder="Buscar equipo o jugador..." oninput="handleSearch()">
+  </div>
+
+  <!-- VERIFICAR LISTA DE CÓDIGOS -->
+  <div class="search-box">
+    <h3>📋 Verificar mis códigos</h3>
+    <textarea id="checkInput" placeholder="Pegá los códigos que querés, separados por coma&#10;Ejemplo: ARG17, POR15, ESP1, FRA20"></textarea>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:10px">
+      Separalos por coma. Podés pegar varios a la vez.
+    </div>
+    <button class="btn" onclick="checkCodes()">Verificar disponibilidad</button>
+    <div id="checkResults" style="margin-top:12px"></div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item"><div class="dot" style="background:#16a34a"></div>Disponible</div>
+    <div class="legend-item"><div class="dot" style="background:#1f2430"></div>No disponible</div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filter-bar">
+    <div class="chip active" onclick="setFilter('todos',this)">Todos</div>
+    <div class="chip" onclick="setFilter('disponibles',this)">Solo disponibles</div>
+  </div>
+
+  <!-- INVENTORY -->
+  <div id="loadingState" class="loading">
+    <div class="loading-dot">Cargando...</div>
+  </div>
+  <div class="inv-container" id="invContainer" style="display:none"></div>
+
+  <div class="contact-hint">
+    <p>¿Encontraste lo que buscabas? Escribime por WhatsApp para coordinar la compra 🙌</p>
+    <a class="wa-btn" href="https://wa.me/50685109300" target="_blank">
+      💬 Escribir al 8510-9300
+    </a>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+  // ── CREDENCIALES ──────────────────────────────────────────────
+  const firebaseConfig = {
+    apiKey:            "AIzaSyAK3A3pdp0i3Uc8HVk0f-Ygmo_bZC4uFUA",
+    authDomain:        "panini-hub-2026.firebaseapp.com",
+    databaseURL:       "https://panini-hub-2026-default-rtdb.firebaseio.com",
+    projectId:         "panini-hub-2026",
+    storageBucket:     "panini-hub-2026.firebasestorage.app",
+    messagingSenderId: "65988552145",
+    appId:             "1:65988552145:web:4820376bd6040ba6386cf0",
+  };
+  // ─────────────────────────────────────────────────────────────
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+
+  // Sticker data (static)
+  const STICKER_DATA = {
+    "FWC00":{"name":"FWC Logo","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC01":{"name":"#26 + copa (arriba)","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC02":{"name":"#26 + copa (abajo)","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC03":{"name":"Tres Mascotas","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC04":{"name":"WE ARE 26 - Multicolor","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC05":{"name":"Balón","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC06":{"name":"Logo Naranja Canada","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC07":{"name":"Logo Verde Mexico","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC08":{"name":"Logo Azul USA","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC09":{"name":"ITALY 1934","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC10":{"name":"URUGUAY 1950","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC11":{"name":"GERMANY FR 1954","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC12":{"name":"BRAZIL 1962","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC13":{"name":"GERMANY FR 1974","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC14":{"name":"ARGENTINA 1986","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC15":{"name":"BRAZIL 1994","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC16":{"name":"BRAZIL 2002","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC17":{"name":"ITALY 2006","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC18":{"name":"GERMANY 2014","team":"FWC","teamName":"FIFA World Cup"},
+    "FWC19":{"name":"ARGENTINA 2022","team":"FWC","teamName":"FIFA World Cup"},
+    "ALG1":{"name":"Escudo","team":"ALG","teamName":"Argelia"},"ALG2":{"name":"Alexis Guendouz","team":"ALG","teamName":"Argelia"},"ALG3":{"name":"Ramy Bensebaini","team":"ALG","teamName":"Argelia"},"ALG4":{"name":"Youcef Atal","team":"ALG","teamName":"Argelia"},"ALG5":{"name":"Rayan Aït-Nouri","team":"ALG","teamName":"Argelia"},"ALG6":{"name":"Mohamed Amine Tougai","team":"ALG","teamName":"Argelia"},"ALG7":{"name":"Aïssa Mandi","team":"ALG","teamName":"Argelia"},"ALG8":{"name":"Ismaël Bennacer","team":"ALG","teamName":"Argelia"},"ALG9":{"name":"Houssem Aouar","team":"ALG","teamName":"Argelia"},"ALG10":{"name":"Hicham Boudaoui","team":"ALG","teamName":"Argelia"},"ALG11":{"name":"Ramiz Zerrouki","team":"ALG","teamName":"Argelia"},"ALG12":{"name":"Nabil Bentaleb","team":"ALG","teamName":"Argelia"},"ALG13":{"name":"Formación","team":"ALG","teamName":"Argelia"},"ALG14":{"name":"Farès Chaïbi","team":"ALG","teamName":"Argelia"},"ALG15":{"name":"Riyad Mahrez","team":"ALG","teamName":"Argelia"},"ALG16":{"name":"Saïd Benrahma","team":"ALG","teamName":"Argelia"},"ALG17":{"name":"Anis Hadj Moussa","team":"ALG","teamName":"Argelia"},"ALG18":{"name":"Amine Gouiri","team":"ALG","teamName":"Argelia"},"ALG19":{"name":"Baghdad Bounedjah","team":"ALG","teamName":"Argelia"},"ALG20":{"name":"Mohammed Amoura","team":"ALG","teamName":"Argelia"},
+    "ARG1":{"name":"Escudo","team":"ARG","teamName":"Argentina"},"ARG2":{"name":"Emiliano Martínez","team":"ARG","teamName":"Argentina"},"ARG3":{"name":"Nahuel Molina","team":"ARG","teamName":"Argentina"},"ARG4":{"name":"Cristian Romero","team":"ARG","teamName":"Argentina"},"ARG5":{"name":"Nicolás Otamendi","team":"ARG","teamName":"Argentina"},"ARG6":{"name":"Nicolás Tagliafico","team":"ARG","teamName":"Argentina"},"ARG7":{"name":"Leonardo Balerdi","team":"ARG","teamName":"Argentina"},"ARG8":{"name":"Enzo Fernández","team":"ARG","teamName":"Argentina"},"ARG9":{"name":"Alexis Mac Allister","team":"ARG","teamName":"Argentina"},"ARG10":{"name":"Rodrigo De Paul","team":"ARG","teamName":"Argentina"},"ARG11":{"name":"Exequiel Palacios","team":"ARG","teamName":"Argentina"},"ARG12":{"name":"Leandro Paredes","team":"ARG","teamName":"Argentina"},"ARG13":{"name":"Formación","team":"ARG","teamName":"Argentina"},"ARG14":{"name":"Nico Paz","team":"ARG","teamName":"Argentina"},"ARG15":{"name":"Franco Mastantuono","team":"ARG","teamName":"Argentina"},"ARG16":{"name":"Nico González","team":"ARG","teamName":"Argentina"},"ARG17":{"name":"Lionel Messi","team":"ARG","teamName":"Argentina"},"ARG18":{"name":"Lautaro Martínez","team":"ARG","teamName":"Argentina"},"ARG19":{"name":"Julián Álvarez","team":"ARG","teamName":"Argentina"},"ARG20":{"name":"Giuliano Simeone","team":"ARG","teamName":"Argentina"},
+    "AUS1":{"name":"Escudo","team":"AUS","teamName":"Australia"},"AUS2":{"name":"Mathew Ryan","team":"AUS","teamName":"Australia"},"AUS3":{"name":"Joe Gauci","team":"AUS","teamName":"Australia"},"AUS4":{"name":"Harry Souttar","team":"AUS","teamName":"Australia"},"AUS5":{"name":"Alessandro Circati","team":"AUS","teamName":"Australia"},"AUS6":{"name":"Jordan Bos","team":"AUS","teamName":"Australia"},"AUS7":{"name":"Aziz Behich","team":"AUS","teamName":"Australia"},"AUS8":{"name":"Cameron Burgess","team":"AUS","teamName":"Australia"},"AUS9":{"name":"Lewis Miller","team":"AUS","teamName":"Australia"},"AUS10":{"name":"Milos Degenek","team":"AUS","teamName":"Australia"},"AUS11":{"name":"Jackson Irvine","team":"AUS","teamName":"Australia"},"AUS12":{"name":"Riley McGree","team":"AUS","teamName":"Australia"},"AUS13":{"name":"Formación","team":"AUS","teamName":"Australia"},"AUS14":{"name":"Aiden O'Neill","team":"AUS","teamName":"Australia"},"AUS15":{"name":"Connor Metcalfe","team":"AUS","teamName":"Australia"},"AUS16":{"name":"Patrick Yazbek","team":"AUS","teamName":"Australia"},"AUS17":{"name":"Craig Goodwin","team":"AUS","teamName":"Australia"},"AUS18":{"name":"Kusini Yengi","team":"AUS","teamName":"Australia"},"AUS19":{"name":"Nestory Irankunda","team":"AUS","teamName":"Australia"},"AUS20":{"name":"Mohamed Touré","team":"AUS","teamName":"Australia"},
+    "AUT1":{"name":"Escudo","team":"AUT","teamName":"Austria"},"AUT2":{"name":"Alexander Schlager","team":"AUT","teamName":"Austria"},"AUT3":{"name":"Patrick Pentz","team":"AUT","teamName":"Austria"},"AUT4":{"name":"David Alaba","team":"AUT","teamName":"Austria"},"AUT5":{"name":"Kevin Danso","team":"AUT","teamName":"Austria"},"AUT6":{"name":"Philipp Lienhart","team":"AUT","teamName":"Austria"},"AUT7":{"name":"Stefan Posch","team":"AUT","teamName":"Austria"},"AUT8":{"name":"Phillipp Mwene","team":"AUT","teamName":"Austria"},"AUT9":{"name":"Alexander Prass","team":"AUT","teamName":"Austria"},"AUT10":{"name":"Xaver Schlager","team":"AUT","teamName":"Austria"},"AUT11":{"name":"Marcel Sabitzer","team":"AUT","teamName":"Austria"},"AUT12":{"name":"Konrad Laimer","team":"AUT","teamName":"Austria"},"AUT13":{"name":"Formación","team":"AUT","teamName":"Austria"},"AUT14":{"name":"Florian Grillitsch","team":"AUT","teamName":"Austria"},"AUT15":{"name":"Nicolas Seiwald","team":"AUT","teamName":"Austria"},"AUT16":{"name":"Romano Schmid","team":"AUT","teamName":"Austria"},"AUT17":{"name":"Patrick Wimmer","team":"AUT","teamName":"Austria"},"AUT18":{"name":"Christoph Baumgartner","team":"AUT","teamName":"Austria"},"AUT19":{"name":"Michael Gregoritsch","team":"AUT","teamName":"Austria"},"AUT20":{"name":"Marko Arnautović","team":"AUT","teamName":"Austria"},
+    "BEL1":{"name":"Escudo","team":"BEL","teamName":"Bélgica"},"BEL2":{"name":"Thibaut Courtois","team":"BEL","teamName":"Bélgica"},"BEL3":{"name":"Arthur Theate","team":"BEL","teamName":"Bélgica"},"BEL4":{"name":"Timothy Castagne","team":"BEL","teamName":"Bélgica"},"BEL5":{"name":"Zeno Debast","team":"BEL","teamName":"Bélgica"},"BEL6":{"name":"Brandon Mechele","team":"BEL","teamName":"Bélgica"},"BEL7":{"name":"Maxim De Cuyper","team":"BEL","teamName":"Bélgica"},"BEL8":{"name":"Thomas Meunier","team":"BEL","teamName":"Bélgica"},"BEL9":{"name":"Youri Tielemans","team":"BEL","teamName":"Bélgica"},"BEL10":{"name":"Amadou Onana","team":"BEL","teamName":"Bélgica"},"BEL11":{"name":"Nicolas Raskin","team":"BEL","teamName":"Bélgica"},"BEL12":{"name":"Alexis Saelemaekers","team":"BEL","teamName":"Bélgica"},"BEL13":{"name":"Formación","team":"BEL","teamName":"Bélgica"},"BEL14":{"name":"Hans Vanaken","team":"BEL","teamName":"Bélgica"},"BEL15":{"name":"Kevin De Bruyne","team":"BEL","teamName":"Bélgica"},"BEL16":{"name":"Jérémy Doku","team":"BEL","teamName":"Bélgica"},"BEL17":{"name":"Charles De Ketelaere","team":"BEL","teamName":"Bélgica"},"BEL18":{"name":"Leandro Trossard","team":"BEL","teamName":"Bélgica"},"BEL19":{"name":"Loïs Openda","team":"BEL","teamName":"Bélgica"},"BEL20":{"name":"Romelu Lukaku","team":"BEL","teamName":"Bélgica"},
+    "BIH1":{"name":"Escudo","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH2":{"name":"Nikola Vasilj","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH3":{"name":"Amar Dedić","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH4":{"name":"Sead Kolašinac","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH5":{"name":"Tarik Muharemović","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH6":{"name":"Nihad Mujakić","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH7":{"name":"Nikola Katić","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH8":{"name":"Amir Hadžiahmetović","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH9":{"name":"Benjamin Tahirović","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH10":{"name":"Armin Gigović","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH11":{"name":"Ivan Šunjić","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH12":{"name":"Ivan Bašić","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH13":{"name":"Formación","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH14":{"name":"Dženis Burnić","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH15":{"name":"Esmir Bajraktarević","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH16":{"name":"Amar Memić","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH17":{"name":"Ermedin Demirović","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH18":{"name":"Edin Džeko","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH19":{"name":"Samed Baždar","team":"BIH","teamName":"Bosnia y Herzegovina"},"BIH20":{"name":"Haris Tabaković","team":"BIH","teamName":"Bosnia y Herzegovina"},
+    "BRA1":{"name":"Escudo","team":"BRA","teamName":"Brasil"},"BRA2":{"name":"Alisson","team":"BRA","teamName":"Brasil"},"BRA3":{"name":"Bento","team":"BRA","teamName":"Brasil"},"BRA4":{"name":"Marquinhos","team":"BRA","teamName":"Brasil"},"BRA5":{"name":"Éder Militão","team":"BRA","teamName":"Brasil"},"BRA6":{"name":"Gabriel Magalhães","team":"BRA","teamName":"Brasil"},"BRA7":{"name":"Danilo","team":"BRA","teamName":"Brasil"},"BRA8":{"name":"Wesley","team":"BRA","teamName":"Brasil"},"BRA9":{"name":"Lucas Paquetá","team":"BRA","teamName":"Brasil"},"BRA10":{"name":"Casemiro","team":"BRA","teamName":"Brasil"},"BRA11":{"name":"Bruno Guimarães","team":"BRA","teamName":"Brasil"},"BRA12":{"name":"Luiz Henrique","team":"BRA","teamName":"Brasil"},"BRA13":{"name":"Formación","team":"BRA","teamName":"Brasil"},"BRA14":{"name":"Vinícius Júnior","team":"BRA","teamName":"Brasil"},"BRA15":{"name":"Rodrygo","team":"BRA","teamName":"Brasil"},"BRA16":{"name":"João Pedro","team":"BRA","teamName":"Brasil"},"BRA17":{"name":"Matheus Cunha","team":"BRA","teamName":"Brasil"},"BRA18":{"name":"Gabriel Martinelli","team":"BRA","teamName":"Brasil"},"BRA19":{"name":"Raphinha","team":"BRA","teamName":"Brasil"},"BRA20":{"name":"Estêvão","team":"BRA","teamName":"Brasil"},
+    "CAN1":{"name":"Escudo","team":"CAN","teamName":"Canadá"},"CAN2":{"name":"Dayne St. Clair","team":"CAN","teamName":"Canadá"},"CAN3":{"name":"Alphonso Davies","team":"CAN","teamName":"Canadá"},"CAN4":{"name":"Alistair Johnston","team":"CAN","teamName":"Canadá"},"CAN5":{"name":"Samuel Adekugbe","team":"CAN","teamName":"Canadá"},"CAN6":{"name":"Richie Laryea","team":"CAN","teamName":"Canadá"},"CAN7":{"name":"Derek Cornelius","team":"CAN","teamName":"Canadá"},"CAN8":{"name":"Moïse Bombito","team":"CAN","teamName":"Canadá"},"CAN9":{"name":"Kamal Miller","team":"CAN","teamName":"Canadá"},"CAN10":{"name":"Stephen Eustáquio","team":"CAN","teamName":"Canadá"},"CAN11":{"name":"Ismaël Koné","team":"CAN","teamName":"Canadá"},"CAN12":{"name":"Jonathan Osorio","team":"CAN","teamName":"Canadá"},"CAN13":{"name":"Formación","team":"CAN","teamName":"Canadá"},"CAN14":{"name":"Jacob Shaffelburg","team":"CAN","teamName":"Canadá"},"CAN15":{"name":"Mathieu Choinière","team":"CAN","teamName":"Canadá"},"CAN16":{"name":"Niko Sigur","team":"CAN","teamName":"Canadá"},"CAN17":{"name":"Tajon Buchanan","team":"CAN","teamName":"Canadá"},"CAN18":{"name":"Liam Millar","team":"CAN","teamName":"Canadá"},"CAN19":{"name":"Cyle Larin","team":"CAN","teamName":"Canadá"},"CAN20":{"name":"Jonathan David","team":"CAN","teamName":"Canadá"},
+    "CIV1":{"name":"Escudo","team":"CIV","teamName":"Costa de Marfil"},"CIV2":{"name":"Yahia Fofana","team":"CIV","teamName":"Costa de Marfil"},"CIV3":{"name":"Ghislain Konan","team":"CIV","teamName":"Costa de Marfil"},"CIV4":{"name":"Wilfried Singo","team":"CIV","teamName":"Costa de Marfil"},"CIV5":{"name":"Odilon Kossounou","team":"CIV","teamName":"Costa de Marfil"},"CIV6":{"name":"Evan Ndicka","team":"CIV","teamName":"Costa de Marfil"},"CIV7":{"name":"Willy Boly","team":"CIV","teamName":"Costa de Marfil"},"CIV8":{"name":"Emmanuel Agbadou","team":"CIV","teamName":"Costa de Marfil"},"CIV9":{"name":"Ousmane Diomande","team":"CIV","teamName":"Costa de Marfil"},"CIV10":{"name":"Franck Kessié","team":"CIV","teamName":"Costa de Marfil"},"CIV11":{"name":"Seko Fofana","team":"CIV","teamName":"Costa de Marfil"},"CIV12":{"name":"Ibrahim Sangaré","team":"CIV","teamName":"Costa de Marfil"},"CIV13":{"name":"Formación","team":"CIV","teamName":"Costa de Marfil"},"CIV14":{"name":"Jean-Philippe Gbamin","team":"CIV","teamName":"Costa de Marfil"},"CIV15":{"name":"Amad Diallo","team":"CIV","teamName":"Costa de Marfil"},"CIV16":{"name":"Sébastien Haller","team":"CIV","teamName":"Costa de Marfil"},"CIV17":{"name":"Simon Adingra","team":"CIV","teamName":"Costa de Marfil"},"CIV18":{"name":"Van Diomande","team":"CIV","teamName":"Costa de Marfil"},"CIV19":{"name":"Evann Guessand","team":"CIV","teamName":"Costa de Marfil"},"CIV20":{"name":"Oumar Djakaité","team":"CIV","teamName":"Costa de Marfil"},
+    "COD1":{"name":"Escudo","team":"COD","teamName":"Congo DR"},"COD2":{"name":"Lionel Mpasi","team":"COD","teamName":"Congo DR"},"COD3":{"name":"Aaron Wan-Bissaka","team":"COD","teamName":"Congo DR"},"COD4":{"name":"Axel Tuanzebe","team":"COD","teamName":"Congo DR"},"COD5":{"name":"Arthur Masuaku","team":"COD","teamName":"Congo DR"},"COD6":{"name":"Chancel Mbemba","team":"COD","teamName":"Congo DR"},"COD7":{"name":"Joris Kayembe","team":"COD","teamName":"Congo DR"},"COD8":{"name":"Charles Pickel","team":"COD","teamName":"Congo DR"},"COD9":{"name":"Ngalayel Mukau","team":"COD","teamName":"Congo DR"},"COD10":{"name":"Edo Kayembe","team":"COD","teamName":"Congo DR"},"COD11":{"name":"Samuel Moutoussamy","team":"COD","teamName":"Congo DR"},"COD12":{"name":"Noah Sadiki","team":"COD","teamName":"Congo DR"},"COD13":{"name":"Formación","team":"COD","teamName":"Congo DR"},"COD14":{"name":"Théo Bongonda","team":"COD","teamName":"Congo DR"},"COD15":{"name":"Meschack Elia","team":"COD","teamName":"Congo DR"},"COD16":{"name":"Yoane Wissa","team":"COD","teamName":"Congo DR"},"COD17":{"name":"Brian Cipenga","team":"COD","teamName":"Congo DR"},"COD18":{"name":"Fiston Mayele","team":"COD","teamName":"Congo DR"},"COD19":{"name":"Cédric Bakambu","team":"COD","teamName":"Congo DR"},"COD20":{"name":"Nathanaël Mbuku","team":"COD","teamName":"Congo DR"},
+    "COL1":{"name":"Escudo","team":"COL","teamName":"Colombia"},"COL2":{"name":"Camilo Vargas","team":"COL","teamName":"Colombia"},"COL3":{"name":"David Ospina","team":"COL","teamName":"Colombia"},"COL4":{"name":"Davinson Sánchez","team":"COL","teamName":"Colombia"},"COL5":{"name":"Yerry Mina","team":"COL","teamName":"Colombia"},"COL6":{"name":"Daniel Muñoz","team":"COL","teamName":"Colombia"},"COL7":{"name":"Johan Mojica","team":"COL","teamName":"Colombia"},"COL8":{"name":"Jhon Lucumí","team":"COL","teamName":"Colombia"},"COL9":{"name":"Santiago Arias","team":"COL","teamName":"Colombia"},"COL10":{"name":"Jefferson Lerma","team":"COL","teamName":"Colombia"},"COL11":{"name":"Kevin Castaño","team":"COL","teamName":"Colombia"},"COL12":{"name":"Richard Ríos","team":"COL","teamName":"Colombia"},"COL13":{"name":"Formación","team":"COL","teamName":"Colombia"},"COL14":{"name":"James Rodríguez","team":"COL","teamName":"Colombia"},"COL15":{"name":"Juan Fernando Quintero","team":"COL","teamName":"Colombia"},"COL16":{"name":"Jorge Carrascal","team":"COL","teamName":"Colombia"},"COL17":{"name":"Jhon Arias","team":"COL","teamName":"Colombia"},"COL18":{"name":"Jhon Córdoba","team":"COL","teamName":"Colombia"},"COL19":{"name":"Luis Suárez","team":"COL","teamName":"Colombia"},"COL20":{"name":"Luis Díaz","team":"COL","teamName":"Colombia"},
+    "CPV1":{"name":"Escudo","team":"CPV","teamName":"Cabo Verde"},"CPV2":{"name":"Vozinha","team":"CPV","teamName":"Cabo Verde"},"CPV3":{"name":"Logan Costa","team":"CPV","teamName":"Cabo Verde"},"CPV4":{"name":"Pico","team":"CPV","teamName":"Cabo Verde"},"CPV5":{"name":"Diney","team":"CPV","teamName":"Cabo Verde"},"CPV6":{"name":"Steven Moreira","team":"CPV","teamName":"Cabo Verde"},"CPV7":{"name":"Wagner Pina","team":"CPV","teamName":"Cabo Verde"},"CPV8":{"name":"João Paulo","team":"CPV","teamName":"Cabo Verde"},"CPV9":{"name":"Yannick Semedo","team":"CPV","teamName":"Cabo Verde"},"CPV10":{"name":"Kevin Pina","team":"CPV","teamName":"Cabo Verde"},"CPV11":{"name":"Patrick Andrade","team":"CPV","teamName":"Cabo Verde"},"CPV12":{"name":"Jamiro Monteiro","team":"CPV","teamName":"Cabo Verde"},"CPV13":{"name":"Formación","team":"CPV","teamName":"Cabo Verde"},"CPV14":{"name":"Deroy Duarte","team":"CPV","teamName":"Cabo Verde"},"CPV15":{"name":"Garry Rodrigues","team":"CPV","teamName":"Cabo Verde"},"CPV16":{"name":"Jovane Cabral","team":"CPV","teamName":"Cabo Verde"},"CPV17":{"name":"Ryan Mendes","team":"CPV","teamName":"Cabo Verde"},"CPV18":{"name":"Dailon Livramento","team":"CPV","teamName":"Cabo Verde"},"CPV19":{"name":"Willy Semedo","team":"CPV","teamName":"Cabo Verde"},"CPV20":{"name":"Bebé","team":"CPV","teamName":"Cabo Verde"},
+    "CRO1":{"name":"Escudo","team":"CRO","teamName":"Croacia"},"CRO2":{"name":"Dominik Livaković","team":"CRO","teamName":"Croacia"},"CRO3":{"name":"Duje Ćaleta-Car","team":"CRO","teamName":"Croacia"},"CRO4":{"name":"Joško Gvardiol","team":"CRO","teamName":"Croacia"},"CRO5":{"name":"Josip Stanišić","team":"CRO","teamName":"Croacia"},"CRO6":{"name":"Luka Vušković","team":"CRO","teamName":"Croacia"},"CRO7":{"name":"Josip Šutalo","team":"CRO","teamName":"Croacia"},"CRO8":{"name":"Kristijan Jakić","team":"CRO","teamName":"Croacia"},"CRO9":{"name":"Luka Modrić","team":"CRO","teamName":"Croacia"},"CRO10":{"name":"Mateo Kovačić","team":"CRO","teamName":"Croacia"},"CRO11":{"name":"Martin Baturina","team":"CRO","teamName":"Croacia"},"CRO12":{"name":"Lovro Majer","team":"CRO","teamName":"Croacia"},"CRO13":{"name":"Formación","team":"CRO","teamName":"Croacia"},"CRO14":{"name":"Mario Pašalić","team":"CRO","teamName":"Croacia"},"CRO15":{"name":"Petar Sučić","team":"CRO","teamName":"Croacia"},"CRO16":{"name":"Ivan Perišić","team":"CRO","teamName":"Croacia"},"CRO17":{"name":"Marco Pašalić","team":"CRO","teamName":"Croacia"},"CRO18":{"name":"Ante Budimir","team":"CRO","teamName":"Croacia"},"CRO19":{"name":"Andrej Kramarić","team":"CRO","teamName":"Croacia"},"CRO20":{"name":"Franjo Ivanović","team":"CRO","teamName":"Croacia"},
+    "CUW1":{"name":"Escudo","team":"CUW","teamName":"Curazao"},"CUW2":{"name":"Eloy Room","team":"CUW","teamName":"Curazao"},"CUW3":{"name":"Arquero Sup.","team":"CUW","teamName":"Curazao"},"CUW4":{"name":"Sherel Floranus","team":"CUW","teamName":"Curazao"},"CUW5":{"name":"Jurién Gaari","team":"CUW","teamName":"Curazao"},"CUW6":{"name":"Joshua Brenet","team":"CUW","teamName":"Curazao"},"CUW7":{"name":"Roshon van Eijma","team":"CUW","teamName":"Curazao"},"CUW8":{"name":"Shurandy Sambo","team":"CUW","teamName":"Curazao"},"CUW9":{"name":"Livano Comenencia","team":"CUW","teamName":"Curazao"},"CUW10":{"name":"Godfried Roemeratoe","team":"CUW","teamName":"Curazao"},"CUW11":{"name":"Juninho Bacuna","team":"CUW","teamName":"Curazao"},"CUW12":{"name":"Leandro Bacuna","team":"CUW","teamName":"Curazao"},"CUW13":{"name":"Formación","team":"CUW","teamName":"Curazao"},"CUW14":{"name":"Tahith Chong","team":"CUW","teamName":"Curazao"},"CUW15":{"name":"Kenji Gorré","team":"CUW","teamName":"Curazao"},"CUW16":{"name":"Jearl Margaritha","team":"CUW","teamName":"Curazao"},"CUW17":{"name":"Jürgen Locadia","team":"CUW","teamName":"Curazao"},"CUW18":{"name":"Jeremy Antonisse","team":"CUW","teamName":"Curazao"},"CUW19":{"name":"Gervane Kastaneer","team":"CUW","teamName":"Curazao"},"CUW20":{"name":"Sontje Hansen","team":"CUW","teamName":"Curazao"},
+    "CZE1":{"name":"Escudo","team":"CZE","teamName":"República Checa"},"CZE2":{"name":"Matěj Kovář","team":"CZE","teamName":"República Checa"},"CZE3":{"name":"Jindřich Staněk","team":"CZE","teamName":"República Checa"},"CZE4":{"name":"Ladislav Krejčí","team":"CZE","teamName":"República Checa"},"CZE5":{"name":"Vladimír Coufal","team":"CZE","teamName":"República Checa"},"CZE6":{"name":"Jaroslav Zelený","team":"CZE","teamName":"República Checa"},"CZE7":{"name":"Tomáš Holeš","team":"CZE","teamName":"República Checa"},"CZE8":{"name":"David Zima","team":"CZE","teamName":"República Checa"},"CZE9":{"name":"Michal Sadílek","team":"CZE","teamName":"República Checa"},"CZE10":{"name":"Lukáš Provod","team":"CZE","teamName":"República Checa"},"CZE11":{"name":"Lukáš Červ","team":"CZE","teamName":"República Checa"},"CZE12":{"name":"Tomáš Souček","team":"CZE","teamName":"República Checa"},"CZE13":{"name":"Formación","team":"CZE","teamName":"República Checa"},"CZE14":{"name":"Pavel Šulc","team":"CZE","teamName":"República Checa"},"CZE15":{"name":"Matěj Vydra","team":"CZE","teamName":"República Checa"},"CZE16":{"name":"Vasil Kušej","team":"CZE","teamName":"República Checa"},"CZE17":{"name":"Tomáš Chorý","team":"CZE","teamName":"República Checa"},"CZE18":{"name":"Václav Černý","team":"CZE","teamName":"República Checa"},"CZE19":{"name":"Adam Hložek","team":"CZE","teamName":"República Checa"},"CZE20":{"name":"Patrik Schick","team":"CZE","teamName":"República Checa"},
+    "ECU1":{"name":"Escudo","team":"ECU","teamName":"Ecuador"},"ECU2":{"name":"Hernán Galíndez","team":"ECU","teamName":"Ecuador"},"ECU3":{"name":"Gonzalo Valle","team":"ECU","teamName":"Ecuador"},"ECU4":{"name":"Piero Hincapié","team":"ECU","teamName":"Ecuador"},"ECU5":{"name":"Pervis Estupiñán","team":"ECU","teamName":"Ecuador"},"ECU6":{"name":"Willian Pacho","team":"ECU","teamName":"Ecuador"},"ECU7":{"name":"Ángelo Preciado","team":"ECU","teamName":"Ecuador"},"ECU8":{"name":"Joel Ordóñez","team":"ECU","teamName":"Ecuador"},"ECU9":{"name":"Moisés Caicedo","team":"ECU","teamName":"Ecuador"},"ECU10":{"name":"Alan Franco","team":"ECU","teamName":"Ecuador"},"ECU11":{"name":"Kendry Páez","team":"ECU","teamName":"Ecuador"},"ECU12":{"name":"Pedro Vite","team":"ECU","teamName":"Ecuador"},"ECU13":{"name":"Formación","team":"ECU","teamName":"Ecuador"},"ECU14":{"name":"John Yeboah","team":"ECU","teamName":"Ecuador"},"ECU15":{"name":"Leonardo Campana","team":"ECU","teamName":"Ecuador"},"ECU16":{"name":"Gonzalo Plata","team":"ECU","teamName":"Ecuador"},"ECU17":{"name":"Nilson Angulo","team":"ECU","teamName":"Ecuador"},"ECU18":{"name":"Alan Minda","team":"ECU","teamName":"Ecuador"},"ECU19":{"name":"Kevin Rodríguez","team":"ECU","teamName":"Ecuador"},"ECU20":{"name":"Enner Valencia","team":"ECU","teamName":"Ecuador"},
+    "EGY1":{"name":"Escudo","team":"EGY","teamName":"Egipto"},"EGY2":{"name":"Mohamed Elshenawi","team":"EGY","teamName":"Egipto"},"EGY3":{"name":"Mohamed Hany","team":"EGY","teamName":"Egipto"},"EGY4":{"name":"Mohamed Hamdy","team":"EGY","teamName":"Egipto"},"EGY5":{"name":"Yasser Ibrahim","team":"EGY","teamName":"Egipto"},"EGY6":{"name":"Khaled Sobhi","team":"EGY","teamName":"Egipto"},"EGY7":{"name":"Ramy Rabia","team":"EGY","teamName":"Egipto"},"EGY8":{"name":"Hossam Abdelmaguid","team":"EGY","teamName":"Egipto"},"EGY9":{"name":"Ahmed Fatouh","team":"EGY","teamName":"Egipto"},"EGY10":{"name":"Marwan Attia","team":"EGY","teamName":"Egipto"},"EGY11":{"name":"Zizo","team":"EGY","teamName":"Egipto"},"EGY12":{"name":"Hamdy Fathy","team":"EGY","teamName":"Egipto"},"EGY13":{"name":"Formación","team":"EGY","teamName":"Egipto"},"EGY14":{"name":"Mohanad Lasheen","team":"EGY","teamName":"Egipto"},"EGY15":{"name":"Emam Ashour","team":"EGY","teamName":"Egipto"},"EGY16":{"name":"Osama Faisal","team":"EGY","teamName":"Egipto"},"EGY17":{"name":"Mohamed Salah","team":"EGY","teamName":"Egipto"},"EGY18":{"name":"Mostafa Mohamed","team":"EGY","teamName":"Egipto"},"EGY19":{"name":"Trezeguet","team":"EGY","teamName":"Egipto"},"EGY20":{"name":"Omar Marmoush","team":"EGY","teamName":"Egipto"},
+    "ENG1":{"name":"Escudo","team":"ENG","teamName":"Inglaterra"},"ENG2":{"name":"Jordan Pickford","team":"ENG","teamName":"Inglaterra"},"ENG3":{"name":"John Stones","team":"ENG","teamName":"Inglaterra"},"ENG4":{"name":"Marc Guéhi","team":"ENG","teamName":"Inglaterra"},"ENG5":{"name":"Ezri Konsa","team":"ENG","teamName":"Inglaterra"},"ENG6":{"name":"Trent Alexander-Arnold","team":"ENG","teamName":"Inglaterra"},"ENG7":{"name":"Reece James","team":"ENG","teamName":"Inglaterra"},"ENG8":{"name":"Dan Burn","team":"ENG","teamName":"Inglaterra"},"ENG9":{"name":"Jordan Henderson","team":"ENG","teamName":"Inglaterra"},"ENG10":{"name":"Declan Rice","team":"ENG","teamName":"Inglaterra"},"ENG11":{"name":"Jude Bellingham","team":"ENG","teamName":"Inglaterra"},"ENG12":{"name":"Cole Palmer","team":"ENG","teamName":"Inglaterra"},"ENG13":{"name":"Formación","team":"ENG","teamName":"Inglaterra"},"ENG14":{"name":"Morgan Rogers","team":"ENG","teamName":"Inglaterra"},"ENG15":{"name":"Anthony Gordon","team":"ENG","teamName":"Inglaterra"},"ENG16":{"name":"Phil Foden","team":"ENG","teamName":"Inglaterra"},"ENG17":{"name":"Bukayo Saka","team":"ENG","teamName":"Inglaterra"},"ENG18":{"name":"Harry Kane","team":"ENG","teamName":"Inglaterra"},"ENG19":{"name":"Marcus Rashford","team":"ENG","teamName":"Inglaterra"},"ENG20":{"name":"Ollie Watkins","team":"ENG","teamName":"Inglaterra"},
+    "ESP1":{"name":"Escudo","team":"ESP","teamName":"España"},"ESP2":{"name":"Unai Simón","team":"ESP","teamName":"España"},"ESP3":{"name":"Robin Le Normand","team":"ESP","teamName":"España"},"ESP4":{"name":"Aymeric Laporte","team":"ESP","teamName":"España"},"ESP5":{"name":"Dean Huijsen","team":"ESP","teamName":"España"},"ESP6":{"name":"Pedro Porro","team":"ESP","teamName":"España"},"ESP7":{"name":"Dani Carvajal","team":"ESP","teamName":"España"},"ESP8":{"name":"Marc Cucurella","team":"ESP","teamName":"España"},"ESP9":{"name":"Martín Zubimendi","team":"ESP","teamName":"España"},"ESP10":{"name":"Rodri","team":"ESP","teamName":"España"},"ESP11":{"name":"Pedri","team":"ESP","teamName":"España"},"ESP12":{"name":"Fabián Ruiz","team":"ESP","teamName":"España"},"ESP13":{"name":"Formación","team":"ESP","teamName":"España"},"ESP14":{"name":"Mikel Merino","team":"ESP","teamName":"España"},"ESP15":{"name":"Lamine Yamal","team":"ESP","teamName":"España"},"ESP16":{"name":"Dani Olmo","team":"ESP","teamName":"España"},"ESP17":{"name":"Nico Williams","team":"ESP","teamName":"España"},"ESP18":{"name":"Ferran Torres","team":"ESP","teamName":"España"},"ESP19":{"name":"Álvaro Morata","team":"ESP","teamName":"España"},"ESP20":{"name":"Mikel Oyarzabal","team":"ESP","teamName":"España"},
+    "FRA1":{"name":"Escudo","team":"FRA","teamName":"Francia"},"FRA2":{"name":"Mike Maignan","team":"FRA","teamName":"Francia"},"FRA3":{"name":"Théo Hernández","team":"FRA","teamName":"Francia"},"FRA4":{"name":"William Saliba","team":"FRA","teamName":"Francia"},"FRA5":{"name":"Jules Koundé","team":"FRA","teamName":"Francia"},"FRA6":{"name":"Ibrahima Konaté","team":"FRA","teamName":"Francia"},"FRA7":{"name":"Dayot Upamecano","team":"FRA","teamName":"Francia"},"FRA8":{"name":"Lucas Digne","team":"FRA","teamName":"Francia"},"FRA9":{"name":"Aurélien Tchouaméni","team":"FRA","teamName":"Francia"},"FRA10":{"name":"Eduardo Camavinga","team":"FRA","teamName":"Francia"},"FRA11":{"name":"Manu Koné","team":"FRA","teamName":"Francia"},"FRA12":{"name":"Adrien Rabiot","team":"FRA","teamName":"Francia"},"FRA13":{"name":"Formación","team":"FRA","teamName":"Francia"},"FRA14":{"name":"Michael Olise","team":"FRA","teamName":"Francia"},"FRA15":{"name":"Ousmane Dembélé","team":"FRA","teamName":"Francia"},"FRA16":{"name":"Bradley Barcola","team":"FRA","teamName":"Francia"},"FRA17":{"name":"Désiré Doué","team":"FRA","teamName":"Francia"},"FRA18":{"name":"Kingsley Coman","team":"FRA","teamName":"Francia"},"FRA19":{"name":"Hugo Ekitiké","team":"FRA","teamName":"Francia"},"FRA20":{"name":"Kylian Mbappé","team":"FRA","teamName":"Francia"},
+    "GER1":{"name":"Escudo","team":"GER","teamName":"Alemania"},"GER2":{"name":"Marc-André ter Stegen","team":"GER","teamName":"Alemania"},"GER3":{"name":"Jonathan Tah","team":"GER","teamName":"Alemania"},"GER4":{"name":"David Raum","team":"GER","teamName":"Alemania"},"GER5":{"name":"Nico Schlotterbeck","team":"GER","teamName":"Alemania"},"GER6":{"name":"Antonio Rüdiger","team":"GER","teamName":"Alemania"},"GER7":{"name":"Waldemar Anton","team":"GER","teamName":"Alemania"},"GER8":{"name":"Ridle Baku","team":"GER","teamName":"Alemania"},"GER9":{"name":"Maximilian Mittelstädt","team":"GER","teamName":"Alemania"},"GER10":{"name":"Joshua Kimmich","team":"GER","teamName":"Alemania"},"GER11":{"name":"Florian Wirtz","team":"GER","teamName":"Alemania"},"GER12":{"name":"Felix Nmecha","team":"GER","teamName":"Alemania"},"GER13":{"name":"Formación","team":"GER","teamName":"Alemania"},"GER14":{"name":"Leon Goretzka","team":"GER","teamName":"Alemania"},"GER15":{"name":"Jamal Musiala","team":"GER","teamName":"Alemania"},"GER16":{"name":"Serge Gnabry","team":"GER","teamName":"Alemania"},"GER17":{"name":"Kai Havertz","team":"GER","teamName":"Alemania"},"GER18":{"name":"Leroy Sané","team":"GER","teamName":"Alemania"},"GER19":{"name":"Karim Adeyemi","team":"GER","teamName":"Alemania"},"GER20":{"name":"Nick Woltemade","team":"GER","teamName":"Alemania"},
+    "GHA1":{"name":"Escudo","team":"GHA","teamName":"Ghana"},"GHA2":{"name":"Lawrence Ati Zigi","team":"GHA","teamName":"Ghana"},"GHA3":{"name":"Tariq Lamptey","team":"GHA","teamName":"Ghana"},"GHA4":{"name":"Mohammed Salisu","team":"GHA","teamName":"Ghana"},"GHA5":{"name":"Alidu Seidu","team":"GHA","teamName":"Ghana"},"GHA6":{"name":"Alexander Djiku","team":"GHA","teamName":"Ghana"},"GHA7":{"name":"Gideon Mensah","team":"GHA","teamName":"Ghana"},"GHA8":{"name":"Caleb Yirenkyi","team":"GHA","teamName":"Ghana"},"GHA9":{"name":"Abdul Issahaku Fatawu","team":"GHA","teamName":"Ghana"},"GHA10":{"name":"Thomas Partey","team":"GHA","teamName":"Ghana"},"GHA11":{"name":"Salis Abdul Samed","team":"GHA","teamName":"Ghana"},"GHA12":{"name":"Kamaldeen Sulemana","team":"GHA","teamName":"Ghana"},"GHA13":{"name":"Formación","team":"GHA","teamName":"Ghana"},"GHA14":{"name":"Mohammed Kudus","team":"GHA","teamName":"Ghana"},"GHA15":{"name":"Iñaki Williams","team":"GHA","teamName":"Ghana"},"GHA16":{"name":"Jordan Ayew","team":"GHA","teamName":"Ghana"},"GHA17":{"name":"André Ayew","team":"GHA","teamName":"Ghana"},"GHA18":{"name":"Joseph Paintsil","team":"GHA","teamName":"Ghana"},"GHA19":{"name":"Osman Bukari","team":"GHA","teamName":"Ghana"},"GHA20":{"name":"Antoine Semenyo","team":"GHA","teamName":"Ghana"},
+    "HAI1":{"name":"Escudo","team":"HAI","teamName":"Haití"},"HAI2":{"name":"Johny Placide","team":"HAI","teamName":"Haití"},"HAI3":{"name":"Carlens Arcus","team":"HAI","teamName":"Haití"},"HAI4":{"name":"Martin Expérience","team":"HAI","teamName":"Haití"},"HAI5":{"name":"Jean-Kévin Duverne","team":"HAI","teamName":"Haití"},"HAI6":{"name":"Ricardo Adé","team":"HAI","teamName":"Haití"},"HAI7":{"name":"Duke Lacroix","team":"HAI","teamName":"Haití"},"HAI8":{"name":"Garven Metusala","team":"HAI","teamName":"Haití"},"HAI9":{"name":"Hannes Delcroix","team":"HAI","teamName":"Haití"},"HAI10":{"name":"Leverton Pierre","team":"HAI","teamName":"Haití"},"HAI11":{"name":"Daniley Jean Jacques","team":"HAI","teamName":"Haití"},"HAI12":{"name":"Jean-Richer Bellegarde","team":"HAI","teamName":"Haití"},"HAI13":{"name":"Formación","team":"HAI","teamName":"Haití"},"HAI14":{"name":"Christopher Attys","team":"HAI","teamName":"Haití"},"HAI15":{"name":"Derrick Etienne Jr.","team":"HAI","teamName":"Haití"},"HAI16":{"name":"Josué Casimir","team":"HAI","teamName":"Haití"},"HAI17":{"name":"Ruben Providence","team":"HAI","teamName":"Haití"},"HAI18":{"name":"Duckens Nazon","team":"HAI","teamName":"Haití"},"HAI19":{"name":"Louicius Deedson","team":"HAI","teamName":"Haití"},"HAI20":{"name":"Frantzdy Pierrot","team":"HAI","teamName":"Haití"},
+    "IRN1":{"name":"Escudo","team":"IRN","teamName":"Irán"},"IRN2":{"name":"Alireza Beiranvand","team":"IRN","teamName":"Irán"},"IRN3":{"name":"Morteza Pouraliganji","team":"IRN","teamName":"Irán"},"IRN4":{"name":"Ehsan Hajsafi","team":"IRN","teamName":"Irán"},"IRN5":{"name":"Milad Mohammadi","team":"IRN","teamName":"Irán"},"IRN6":{"name":"Shojae Khalilzadeh","team":"IRN","teamName":"Irán"},"IRN7":{"name":"Ramin Rezaeian","team":"IRN","teamName":"Irán"},"IRN8":{"name":"Hossein Kanaani","team":"IRN","teamName":"Irán"},"IRN9":{"name":"Sadegh Moharrami","team":"IRN","teamName":"Irán"},"IRN10":{"name":"Saleh Hardani","team":"IRN","teamName":"Irán"},"IRN11":{"name":"Saeed Ezatolahi","team":"IRN","teamName":"Irán"},"IRN12":{"name":"Saman Ghoddos","team":"IRN","teamName":"Irán"},"IRN13":{"name":"Formación","team":"IRN","teamName":"Irán"},"IRN14":{"name":"Omid Noorafkan","team":"IRN","teamName":"Irán"},"IRN15":{"name":"Roozbeh Cheshmi","team":"IRN","teamName":"Irán"},"IRN16":{"name":"Mohammad Mohebi","team":"IRN","teamName":"Irán"},"IRN17":{"name":"Sardar Azmoun","team":"IRN","teamName":"Irán"},"IRN18":{"name":"Mehdi Taremi","team":"IRN","teamName":"Irán"},"IRN19":{"name":"Alireza Jahanbakhsh","team":"IRN","teamName":"Irán"},"IRN20":{"name":"Ali Gholizadeh","team":"IRN","teamName":"Irán"},
+    "IRQ1":{"name":"Escudo","team":"IRQ","teamName":"Irak"},"IRQ2":{"name":"Jalal Hassan","team":"IRQ","teamName":"Irak"},"IRQ3":{"name":"Rebin Sulaka","team":"IRQ","teamName":"Irak"},"IRQ4":{"name":"Hussein Ali","team":"IRQ","teamName":"Irak"},"IRQ5":{"name":"Akam Hashem","team":"IRQ","teamName":"Irak"},"IRQ6":{"name":"Merchas Doski","team":"IRQ","teamName":"Irak"},"IRQ7":{"name":"Zaid Tahseen","team":"IRQ","teamName":"Irak"},"IRQ8":{"name":"Manaf Younis","team":"IRQ","teamName":"Irak"},"IRQ9":{"name":"Zidane Iqbal","team":"IRQ","teamName":"Irak"},"IRQ10":{"name":"Amir Al-Ammari","team":"IRQ","teamName":"Irak"},"IRQ11":{"name":"Ibrahim Bayesh","team":"IRQ","teamName":"Irak"},"IRQ12":{"name":"Ali Jasim","team":"IRQ","teamName":"Irak"},"IRQ13":{"name":"Formación","team":"IRQ","teamName":"Irak"},"IRQ14":{"name":"Youssef Amyn","team":"IRQ","teamName":"Irak"},"IRQ15":{"name":"Aymen Sher","team":"IRQ","teamName":"Irak"},"IRQ16":{"name":"Marko Farji","team":"IRQ","teamName":"Irak"},"IRQ17":{"name":"Osama Rashid","team":"IRQ","teamName":"Irak"},"IRQ18":{"name":"Ali Al-Hamadi","team":"IRQ","teamName":"Irak"},"IRQ19":{"name":"Aymen Hussein","team":"IRQ","teamName":"Irak"},"IRQ20":{"name":"Mohanad Ali","team":"IRQ","teamName":"Irak"},
+    "JOR1":{"name":"Escudo","team":"JOR","teamName":"Jordania"},"JOR2":{"name":"Yazeed Abulaila","team":"JOR","teamName":"Jordania"},"JOR3":{"name":"Ihsan Haddad","team":"JOR","teamName":"Jordania"},"JOR4":{"name":"Mohammad Abu Hashish","team":"JOR","teamName":"Jordania"},"JOR5":{"name":"Yazan Al-Arab","team":"JOR","teamName":"Jordania"},"JOR6":{"name":"Abdallah Nasib","team":"JOR","teamName":"Jordania"},"JOR7":{"name":"Saleem Obaid","team":"JOR","teamName":"Jordania"},"JOR8":{"name":"Mohammad Abualnadi","team":"JOR","teamName":"Jordania"},"JOR9":{"name":"Ibrahim Saadeh","team":"JOR","teamName":"Jordania"},"JOR10":{"name":"Nizar Al-Rashdan","team":"JOR","teamName":"Jordania"},"JOR11":{"name":"Noor Al-Rawabdeh","team":"JOR","teamName":"Jordania"},"JOR12":{"name":"Mohannad Abu Taha","team":"JOR","teamName":"Jordania"},"JOR13":{"name":"Formación","team":"JOR","teamName":"Jordania"},"JOR14":{"name":"Amer Jamous","team":"JOR","teamName":"Jordania"},"JOR15":{"name":"Mousa Al-Taamari","team":"JOR","teamName":"Jordania"},"JOR16":{"name":"Yazan Al-Naimat","team":"JOR","teamName":"Jordania"},"JOR17":{"name":"Mahmoud Al-Mardi","team":"JOR","teamName":"Jordania"},"JOR18":{"name":"Ali Olwan","team":"JOR","teamName":"Jordania"},"JOR19":{"name":"Mohammad Abu Zrayq","team":"JOR","teamName":"Jordania"},"JOR20":{"name":"Ibrahim Sabra","team":"JOR","teamName":"Jordania"},
+    "JPN1":{"name":"Escudo","team":"JPN","teamName":"Japón"},"JPN2":{"name":"Zion Suzuki","team":"JPN","teamName":"Japón"},"JPN3":{"name":"Henry Heroki Mochizuki","team":"JPN","teamName":"Japón"},"JPN4":{"name":"Ayumu Seko","team":"JPN","teamName":"Japón"},"JPN5":{"name":"Junnosuke Suzuki","team":"JPN","teamName":"Japón"},"JPN6":{"name":"Shogo Taniguchi","team":"JPN","teamName":"Japón"},"JPN7":{"name":"Tsuyoshi Watanabe","team":"JPN","teamName":"Japón"},"JPN8":{"name":"Kaishu Sano","team":"JPN","teamName":"Japón"},"JPN9":{"name":"Yuki Soma","team":"JPN","teamName":"Japón"},"JPN10":{"name":"Ao Tanaka","team":"JPN","teamName":"Japón"},"JPN11":{"name":"Daichi Kamada","team":"JPN","teamName":"Japón"},"JPN12":{"name":"Takefusa Kubo","team":"JPN","teamName":"Japón"},"JPN13":{"name":"Formación","team":"JPN","teamName":"Japón"},"JPN14":{"name":"Ritsu Doan","team":"JPN","teamName":"Japón"},"JPN15":{"name":"Keito Nakamura","team":"JPN","teamName":"Japón"},"JPN16":{"name":"Takumi Minamino","team":"JPN","teamName":"Japón"},"JPN17":{"name":"Shuto Machino","team":"JPN","teamName":"Japón"},"JPN18":{"name":"Junya Ito","team":"JPN","teamName":"Japón"},"JPN19":{"name":"Koki Ogawa","team":"JPN","teamName":"Japón"},"JPN20":{"name":"Ayase Ueda","team":"JPN","teamName":"Japón"},
+    "KOR1":{"name":"Escudo","team":"KOR","teamName":"Corea del Sur"},"KOR2":{"name":"Hyeonwoo Jo","team":"KOR","teamName":"Corea del Sur"},"KOR3":{"name":"Seunggyu Kim","team":"KOR","teamName":"Corea del Sur"},"KOR4":{"name":"Minjae Kim","team":"KOR","teamName":"Corea del Sur"},"KOR5":{"name":"Yumin Cho","team":"KOR","teamName":"Corea del Sur"},"KOR6":{"name":"Youngwoo Seol","team":"KOR","teamName":"Corea del Sur"},"KOR7":{"name":"Hanbeom Lee","team":"KOR","teamName":"Corea del Sur"},"KOR8":{"name":"Taeseok Lee","team":"KOR","teamName":"Corea del Sur"},"KOR9":{"name":"Myungjae Lee","team":"KOR","teamName":"Corea del Sur"},"KOR10":{"name":"Jaesung Lee","team":"KOR","teamName":"Corea del Sur"},"KOR11":{"name":"Inbeom Hwang","team":"KOR","teamName":"Corea del Sur"},"KOR12":{"name":"Kangin Lee","team":"KOR","teamName":"Corea del Sur"},"KOR13":{"name":"Formación","team":"KOR","teamName":"Corea del Sur"},"KOR14":{"name":"Seungho Paik","team":"KOR","teamName":"Corea del Sur"},"KOR15":{"name":"Jens Castrop","team":"KOR","teamName":"Corea del Sur"},"KOR16":{"name":"Dongyeong Lee","team":"KOR","teamName":"Corea del Sur"},"KOR17":{"name":"Guesung Cho","team":"KOR","teamName":"Corea del Sur"},"KOR18":{"name":"Heungmin Son","team":"KOR","teamName":"Corea del Sur"},"KOR19":{"name":"Heechan Hwang","team":"KOR","teamName":"Corea del Sur"},"KOR20":{"name":"Hyeongyu Oh","team":"KOR","teamName":"Corea del Sur"},
+    "KSA1":{"name":"Escudo","team":"KSA","teamName":"Arabia Saudita"},"KSA2":{"name":"Nawaf Alaqidi","team":"KSA","teamName":"Arabia Saudita"},"KSA3":{"name":"Abdulrahman Alsanbi","team":"KSA","teamName":"Arabia Saudita"},"KSA4":{"name":"Saud Abdulhamid","team":"KSA","teamName":"Arabia Saudita"},"KSA5":{"name":"Nawaf Buwashl","team":"KSA","teamName":"Arabia Saudita"},"KSA6":{"name":"Jehad Thikri","team":"KSA","teamName":"Arabia Saudita"},"KSA7":{"name":"Moteb Alharbi","team":"KSA","teamName":"Arabia Saudita"},"KSA8":{"name":"Hassan Altambakti","team":"KSA","teamName":"Arabia Saudita"},"KSA9":{"name":"Musab Aljuwayr","team":"KSA","teamName":"Arabia Saudita"},"KSA10":{"name":"Ziyad Aljohani","team":"KSA","teamName":"Arabia Saudita"},"KSA11":{"name":"Abdullah Alkhaibari","team":"KSA","teamName":"Arabia Saudita"},"KSA12":{"name":"Nasser Aldawsari","team":"KSA","teamName":"Arabia Saudita"},"KSA13":{"name":"Formación","team":"KSA","teamName":"Arabia Saudita"},"KSA14":{"name":"Saleh Abu Alshamat","team":"KSA","teamName":"Arabia Saudita"},"KSA15":{"name":"Marwan Alsahafi","team":"KSA","teamName":"Arabia Saudita"},"KSA16":{"name":"Salem Aldawsari","team":"KSA","teamName":"Arabia Saudita"},"KSA17":{"name":"Abdulrahman Alobud","team":"KSA","teamName":"Arabia Saudita"},"KSA18":{"name":"Feras Albrikan","team":"KSA","teamName":"Arabia Saudita"},"KSA19":{"name":"Saleh Alshehri","team":"KSA","teamName":"Arabia Saudita"},"KSA20":{"name":"Abdullah Alhamdan","team":"KSA","teamName":"Arabia Saudita"},
+    "MAR1":{"name":"Escudo","team":"MAR","teamName":"Marruecos"},"MAR2":{"name":"Yassine Bounou","team":"MAR","teamName":"Marruecos"},"MAR3":{"name":"Munir El Kajoui","team":"MAR","teamName":"Marruecos"},"MAR4":{"name":"Achraf Hakimi","team":"MAR","teamName":"Marruecos"},"MAR5":{"name":"Noussair Mazraoui","team":"MAR","teamName":"Marruecos"},"MAR6":{"name":"Nayef Aguerd","team":"MAR","teamName":"Marruecos"},"MAR7":{"name":"Romain Saïss","team":"MAR","teamName":"Marruecos"},"MAR8":{"name":"Jawad El Yamiq","team":"MAR","teamName":"Marruecos"},"MAR9":{"name":"Adam Masina","team":"MAR","teamName":"Marruecos"},"MAR10":{"name":"Sofyan Amrabat","team":"MAR","teamName":"Marruecos"},"MAR11":{"name":"Azzedine Ounahi","team":"MAR","teamName":"Marruecos"},"MAR12":{"name":"Eliesse Ben Seghir","team":"MAR","teamName":"Marruecos"},"MAR13":{"name":"Formación","team":"MAR","teamName":"Marruecos"},"MAR14":{"name":"Bilal El Khannouss","team":"MAR","teamName":"Marruecos"},"MAR15":{"name":"Ismael Saibari","team":"MAR","teamName":"Marruecos"},"MAR16":{"name":"Youssef En-Nesyri","team":"MAR","teamName":"Marruecos"},"MAR17":{"name":"Abde Ezzalzouli","team":"MAR","teamName":"Marruecos"},"MAR18":{"name":"Soufiane Rahimi","team":"MAR","teamName":"Marruecos"},"MAR19":{"name":"Brahim Díaz","team":"MAR","teamName":"Marruecos"},"MAR20":{"name":"Ayoub El Kaabi","team":"MAR","teamName":"Marruecos"},
+    "MEX1":{"name":"Escudo","team":"MEX","teamName":"México"},"MEX2":{"name":"Luis Malagón","team":"MEX","teamName":"México"},"MEX3":{"name":"Johan Vásquez","team":"MEX","teamName":"México"},"MEX4":{"name":"Jorge Sánchez","team":"MEX","teamName":"México"},"MEX5":{"name":"César Montes","team":"MEX","teamName":"México"},"MEX6":{"name":"Jesús Gallardo","team":"MEX","teamName":"México"},"MEX7":{"name":"Israel Reyes","team":"MEX","teamName":"México"},"MEX8":{"name":"Diego Lainez","team":"MEX","teamName":"México"},"MEX9":{"name":"Carlos Rodríguez","team":"MEX","teamName":"México"},"MEX10":{"name":"Edson Álvarez","team":"MEX","teamName":"México"},"MEX11":{"name":"Orbelín Pineda","team":"MEX","teamName":"México"},"MEX12":{"name":"Marcel Ruiz","team":"MEX","teamName":"México"},"MEX13":{"name":"Formación","team":"MEX","teamName":"México"},"MEX14":{"name":"Érick Sánchez","team":"MEX","teamName":"México"},"MEX15":{"name":"Hirving Lozano","team":"MEX","teamName":"México"},"MEX16":{"name":"Santiago Giménez","team":"MEX","teamName":"México"},"MEX17":{"name":"Raúl Jiménez","team":"MEX","teamName":"México"},"MEX18":{"name":"Alexis Vega","team":"MEX","teamName":"México"},"MEX19":{"name":"Roberto Alvarado","team":"MEX","teamName":"México"},"MEX20":{"name":"César Huerta","team":"MEX","teamName":"México"},
+    "NED1":{"name":"Escudo","team":"NED","teamName":"Países Bajos"},"NED2":{"name":"Bart Verbruggen","team":"NED","teamName":"Países Bajos"},"NED3":{"name":"Virgil van Dijk","team":"NED","teamName":"Países Bajos"},"NED4":{"name":"Micky van de Ven","team":"NED","teamName":"Países Bajos"},"NED5":{"name":"Jurriën Timber","team":"NED","teamName":"Países Bajos"},"NED6":{"name":"Denzel Dumfries","team":"NED","teamName":"Países Bajos"},"NED7":{"name":"Nathan Aké","team":"NED","teamName":"Países Bajos"},"NED8":{"name":"Jeremie Frimpong","team":"NED","teamName":"Países Bajos"},"NED9":{"name":"Jan Paul van Hecke","team":"NED","teamName":"Países Bajos"},"NED10":{"name":"Tijjani Reijnders","team":"NED","teamName":"Países Bajos"},"NED11":{"name":"Ryan Gravenberch","team":"NED","teamName":"Países Bajos"},"NED12":{"name":"Teun Koopmeiners","team":"NED","teamName":"Países Bajos"},"NED13":{"name":"Formación","team":"NED","teamName":"Países Bajos"},"NED14":{"name":"Frenkie de Jong","team":"NED","teamName":"Países Bajos"},"NED15":{"name":"Xavi Simons","team":"NED","teamName":"Países Bajos"},"NED16":{"name":"Justin Kluivert","team":"NED","teamName":"Países Bajos"},"NED17":{"name":"Memphis Depay","team":"NED","teamName":"Países Bajos"},"NED18":{"name":"Donyell Malen","team":"NED","teamName":"Países Bajos"},"NED19":{"name":"Wout Weghorst","team":"NED","teamName":"Países Bajos"},"NED20":{"name":"Cody Gakpo","team":"NED","teamName":"Países Bajos"},
+    "NOR1":{"name":"Escudo","team":"NOR","teamName":"Noruega"},"NOR2":{"name":"Ørjan Nyland","team":"NOR","teamName":"Noruega"},"NOR3":{"name":"Julian Ryerson","team":"NOR","teamName":"Noruega"},"NOR4":{"name":"Leo Østigård","team":"NOR","teamName":"Noruega"},"NOR5":{"name":"Kristoffer Vassbakk Ajer","team":"NOR","teamName":"Noruega"},"NOR6":{"name":"Marcus Holmgren Pedersen","team":"NOR","teamName":"Noruega"},"NOR7":{"name":"David Møller Wolfe","team":"NOR","teamName":"Noruega"},"NOR8":{"name":"Torbjørn Heggem","team":"NOR","teamName":"Noruega"},"NOR9":{"name":"Morten Thorsby","team":"NOR","teamName":"Noruega"},"NOR10":{"name":"Martin Ødegaard","team":"NOR","teamName":"Noruega"},"NOR11":{"name":"Sander Berge","team":"NOR","teamName":"Noruega"},"NOR12":{"name":"Andreas Schjelderup","team":"NOR","teamName":"Noruega"},"NOR13":{"name":"Formación","team":"NOR","teamName":"Noruega"},"NOR14":{"name":"Patrick Berg","team":"NOR","teamName":"Noruega"},"NOR15":{"name":"Erling Haaland","team":"NOR","teamName":"Noruega"},"NOR16":{"name":"Alexander Sørloth","team":"NOR","teamName":"Noruega"},"NOR17":{"name":"Aron Dønnum","team":"NOR","teamName":"Noruega"},"NOR18":{"name":"Jørgen Strand Larsen","team":"NOR","teamName":"Noruega"},"NOR19":{"name":"Antonio Nusa","team":"NOR","teamName":"Noruega"},"NOR20":{"name":"Oscar Bobb","team":"NOR","teamName":"Noruega"},
+    "NZL1":{"name":"Escudo","team":"NZL","teamName":"Nueva Zelanda"},"NZL2":{"name":"Max Crocombe","team":"NZL","teamName":"Nueva Zelanda"},"NZL3":{"name":"Alex Paulsen","team":"NZL","teamName":"Nueva Zelanda"},"NZL4":{"name":"Michael Boxall","team":"NZL","teamName":"Nueva Zelanda"},"NZL5":{"name":"Liberato Cacace","team":"NZL","teamName":"Nueva Zelanda"},"NZL6":{"name":"Tim Payne","team":"NZL","teamName":"Nueva Zelanda"},"NZL7":{"name":"Tyler Bindon","team":"NZL","teamName":"Nueva Zelanda"},"NZL8":{"name":"Francois de Vries","team":"NZL","teamName":"Nueva Zelanda"},"NZL9":{"name":"Finn Surman","team":"NZL","teamName":"Nueva Zelanda"},"NZL10":{"name":"Joe Bell","team":"NZL","teamName":"Nueva Zelanda"},"NZL11":{"name":"Sarpreet Singh","team":"NZL","teamName":"Nueva Zelanda"},"NZL12":{"name":"Ryan Thomas","team":"NZL","teamName":"Nueva Zelanda"},"NZL13":{"name":"Formación","team":"NZL","teamName":"Nueva Zelanda"},"NZL14":{"name":"Matthew Garbett","team":"NZL","teamName":"Nueva Zelanda"},"NZL15":{"name":"Marko Stamenić","team":"NZL","teamName":"Nueva Zelanda"},"NZL16":{"name":"Ben Old","team":"NZL","teamName":"Nueva Zelanda"},"NZL17":{"name":"Chris Wood","team":"NZL","teamName":"Nueva Zelanda"},"NZL18":{"name":"Elijah Just","team":"NZL","teamName":"Nueva Zelanda"},"NZL19":{"name":"Callum McCowatt","team":"NZL","teamName":"Nueva Zelanda"},"NZL20":{"name":"Kosta Barbarouses","team":"NZL","teamName":"Nueva Zelanda"},
+    "PAN1":{"name":"Escudo","team":"PAN","teamName":"Panamá"},"PAN2":{"name":"Orlando Mosquera","team":"PAN","teamName":"Panamá"},"PAN3":{"name":"Luis Mejía","team":"PAN","teamName":"Panamá"},"PAN4":{"name":"Fidel Escobar","team":"PAN","teamName":"Panamá"},"PAN5":{"name":"Andrés Andrade","team":"PAN","teamName":"Panamá"},"PAN6":{"name":"Michael Amir Murillo","team":"PAN","teamName":"Panamá"},"PAN7":{"name":"Eric Davis","team":"PAN","teamName":"Panamá"},"PAN8":{"name":"José Córdoba","team":"PAN","teamName":"Panamá"},"PAN9":{"name":"César Blackman","team":"PAN","teamName":"Panamá"},"PAN10":{"name":"Cristian Martínez","team":"PAN","teamName":"Panamá"},"PAN11":{"name":"Aníbal Godoy","team":"PAN","teamName":"Panamá"},"PAN12":{"name":"Adalberto Carrasquilla","team":"PAN","teamName":"Panamá"},"PAN13":{"name":"Formación","team":"PAN","teamName":"Panamá"},"PAN14":{"name":"Édgar Bárcenas","team":"PAN","teamName":"Panamá"},"PAN15":{"name":"Carlos Harvey","team":"PAN","teamName":"Panamá"},"PAN16":{"name":"Ismael Díaz","team":"PAN","teamName":"Panamá"},"PAN17":{"name":"José Fajardo","team":"PAN","teamName":"Panamá"},"PAN18":{"name":"Cecilio Waterman","team":"PAN","teamName":"Panamá"},"PAN19":{"name":"José Luis Rodríguez","team":"PAN","teamName":"Panamá"},"PAN20":{"name":"Alberto Quintero","team":"PAN","teamName":"Panamá"},
+    "PAR1":{"name":"Escudo","team":"PAR","teamName":"Paraguay"},"PAR2":{"name":"Roberto Fernández","team":"PAR","teamName":"Paraguay"},"PAR3":{"name":"Orlando Gill","team":"PAR","teamName":"Paraguay"},"PAR4":{"name":"Gustavo Gómez","team":"PAR","teamName":"Paraguay"},"PAR5":{"name":"Fabián Balbuena","team":"PAR","teamName":"Paraguay"},"PAR6":{"name":"Juan José Cáceres","team":"PAR","teamName":"Paraguay"},"PAR7":{"name":"Omar Alderete","team":"PAR","teamName":"Paraguay"},"PAR8":{"name":"Júnior Alonso","team":"PAR","teamName":"Paraguay"},"PAR9":{"name":"Mathías Villasanti","team":"PAR","teamName":"Paraguay"},"PAR10":{"name":"Diego Gómez","team":"PAR","teamName":"Paraguay"},"PAR11":{"name":"Damián Bobadilla","team":"PAR","teamName":"Paraguay"},"PAR12":{"name":"Andrés Cubas","team":"PAR","teamName":"Paraguay"},"PAR13":{"name":"Formación","team":"PAR","teamName":"Paraguay"},"PAR14":{"name":"Matías Galarza Fonda","team":"PAR","teamName":"Paraguay"},"PAR15":{"name":"Julio Enciso","team":"PAR","teamName":"Paraguay"},"PAR16":{"name":"Alejandro Romero Gamarra","team":"PAR","teamName":"Paraguay"},"PAR17":{"name":"Miguel Almirón","team":"PAR","teamName":"Paraguay"},"PAR18":{"name":"Ramón Sosa","team":"PAR","teamName":"Paraguay"},"PAR19":{"name":"Ángel Romero","team":"PAR","teamName":"Paraguay"},"PAR20":{"name":"Antonio Sanabria","team":"PAR","teamName":"Paraguay"},
+    "POR1":{"name":"Escudo","team":"POR","teamName":"Portugal"},"POR2":{"name":"Diogo Costa","team":"POR","teamName":"Portugal"},"POR3":{"name":"José Sá","team":"POR","teamName":"Portugal"},"POR4":{"name":"Rúben Dias","team":"POR","teamName":"Portugal"},"POR5":{"name":"João Cancelo","team":"POR","teamName":"Portugal"},"POR6":{"name":"Diogo Dalot","team":"POR","teamName":"Portugal"},"POR7":{"name":"Nuno Mendes","team":"POR","teamName":"Portugal"},"POR8":{"name":"Gonçalo Inácio","team":"POR","teamName":"Portugal"},"POR9":{"name":"Bernardo Silva","team":"POR","teamName":"Portugal"},"POR10":{"name":"Bruno Fernandes","team":"POR","teamName":"Portugal"},"POR11":{"name":"Rúben Neves","team":"POR","teamName":"Portugal"},"POR12":{"name":"Vitinha","team":"POR","teamName":"Portugal"},"POR13":{"name":"Formación","team":"POR","teamName":"Portugal"},"POR14":{"name":"João Neves","team":"POR","teamName":"Portugal"},"POR15":{"name":"Cristiano Ronaldo","team":"POR","teamName":"Portugal"},"POR16":{"name":"Francisco Trincão","team":"POR","teamName":"Portugal"},"POR17":{"name":"João Félix","team":"POR","teamName":"Portugal"},"POR18":{"name":"Gonçalo Ramos","team":"POR","teamName":"Portugal"},"POR19":{"name":"Pedro Neto","team":"POR","teamName":"Portugal"},"POR20":{"name":"Rafael Leão","team":"POR","teamName":"Portugal"},
+    "QAT1":{"name":"Escudo","team":"QAT","teamName":"Qatar"},"QAT2":{"name":"Meshaal Barsham","team":"QAT","teamName":"Qatar"},"QAT3":{"name":"Sultan Albrake","team":"QAT","teamName":"Qatar"},"QAT4":{"name":"Lucas Mendes","team":"QAT","teamName":"Qatar"},"QAT5":{"name":"Homam Ahmed","team":"QAT","teamName":"Qatar"},"QAT6":{"name":"Boualem Khoukhi","team":"QAT","teamName":"Qatar"},"QAT7":{"name":"Pedro Miguel","team":"QAT","teamName":"Qatar"},"QAT8":{"name":"Tarek Salman","team":"QAT","teamName":"Qatar"},"QAT9":{"name":"Mohammed Mannai","team":"QAT","teamName":"Qatar"},"QAT10":{"name":"Karim Boudiaf","team":"QAT","teamName":"Qatar"},"QAT11":{"name":"Assim Madibo","team":"QAT","teamName":"Qatar"},"QAT12":{"name":"Hamed Fatehi","team":"QAT","teamName":"Qatar"},"QAT13":{"name":"Formación","team":"QAT","teamName":"Qatar"},"QAT14":{"name":"Mohammed Waad","team":"QAT","teamName":"Qatar"},"QAT15":{"name":"Abdulaziz Hatem","team":"QAT","teamName":"Qatar"},"QAT16":{"name":"Hassan Al-Haydos","team":"QAT","teamName":"Qatar"},"QAT17":{"name":"Edmilson Junior","team":"QAT","teamName":"Qatar"},"QAT18":{"name":"Akram Hassan Afif","team":"QAT","teamName":"Qatar"},"QAT19":{"name":"Ahmed Al-Ganehi","team":"QAT","teamName":"Qatar"},"QAT20":{"name":"Almoez Ali","team":"QAT","teamName":"Qatar"},
+    "RSA1":{"name":"Escudo","team":"RSA","teamName":"Sudáfrica"},"RSA2":{"name":"Ronwen Williams","team":"RSA","teamName":"Sudáfrica"},"RSA3":{"name":"Sipho Chaine","team":"RSA","teamName":"Sudáfrica"},"RSA4":{"name":"Aubrey Modiba","team":"RSA","teamName":"Sudáfrica"},"RSA5":{"name":"Samukele Kabini","team":"RSA","teamName":"Sudáfrica"},"RSA6":{"name":"Mbekezeli Mbokazi","team":"RSA","teamName":"Sudáfrica"},"RSA7":{"name":"Khulumani Ndamane","team":"RSA","teamName":"Sudáfrica"},"RSA8":{"name":"Siyabonga Ngezana","team":"RSA","teamName":"Sudáfrica"},"RSA9":{"name":"Khuliso Mudau","team":"RSA","teamName":"Sudáfrica"},"RSA10":{"name":"Nkosinathi Sibisi","team":"RSA","teamName":"Sudáfrica"},"RSA11":{"name":"Teboho Mokoena","team":"RSA","teamName":"Sudáfrica"},"RSA12":{"name":"Thalente Mbatha","team":"RSA","teamName":"Sudáfrica"},"RSA13":{"name":"Formación","team":"RSA","teamName":"Sudáfrica"},"RSA14":{"name":"Bathusi Aubaas","team":"RSA","teamName":"Sudáfrica"},"RSA15":{"name":"Vava Sithole","team":"RSA","teamName":"Sudáfrica"},"RSA16":{"name":"Sipho Mbule","team":"RSA","teamName":"Sudáfrica"},"RSA17":{"name":"Lyle Foster","team":"RSA","teamName":"Sudáfrica"},"RSA18":{"name":"Idraam Rayners","team":"RSA","teamName":"Sudáfrica"},"RSA19":{"name":"Mohau Nkota","team":"RSA","teamName":"Sudáfrica"},"RSA20":{"name":"Oswin Appollis","team":"RSA","teamName":"Sudáfrica"},
+    "SCO1":{"name":"Escudo","team":"SCO","teamName":"Escocia"},"SCO2":{"name":"Angus Gunn","team":"SCO","teamName":"Escocia"},"SCO3":{"name":"Jack Hendry","team":"SCO","teamName":"Escocia"},"SCO4":{"name":"Kieran Tierney","team":"SCO","teamName":"Escocia"},"SCO5":{"name":"Aaron Hickey","team":"SCO","teamName":"Escocia"},"SCO6":{"name":"Andrew Robertson","team":"SCO","teamName":"Escocia"},"SCO7":{"name":"Scott McKenna","team":"SCO","teamName":"Escocia"},"SCO8":{"name":"John Souttar","team":"SCO","teamName":"Escocia"},"SCO9":{"name":"Anthony Ralston","team":"SCO","teamName":"Escocia"},"SCO10":{"name":"Grant Hanley","team":"SCO","teamName":"Escocia"},"SCO11":{"name":"Scott McTominay","team":"SCO","teamName":"Escocia"},"SCO12":{"name":"Billy Gilmour","team":"SCO","teamName":"Escocia"},"SCO13":{"name":"Formación","team":"SCO","teamName":"Escocia"},"SCO14":{"name":"Lewis Ferguson","team":"SCO","teamName":"Escocia"},"SCO15":{"name":"Ryan Christie","team":"SCO","teamName":"Escocia"},"SCO16":{"name":"Kenny McLean","team":"SCO","teamName":"Escocia"},"SCO17":{"name":"John McGinn","team":"SCO","teamName":"Escocia"},"SCO18":{"name":"Lyndon Dykes","team":"SCO","teamName":"Escocia"},"SCO19":{"name":"Ché Adams","team":"SCO","teamName":"Escocia"},"SCO20":{"name":"Ben Gannon-Doak","team":"SCO","teamName":"Escocia"},
+    "SEN1":{"name":"Escudo","team":"SEN","teamName":"Senegal"},"SEN2":{"name":"Édouard Mendy","team":"SEN","teamName":"Senegal"},"SEN3":{"name":"Yehvann Diouf","team":"SEN","teamName":"Senegal"},"SEN4":{"name":"Moussa Niakhaté","team":"SEN","teamName":"Senegal"},"SEN5":{"name":"Abdoulaye Seck","team":"SEN","teamName":"Senegal"},"SEN6":{"name":"Ismail Jakobs","team":"SEN","teamName":"Senegal"},"SEN7":{"name":"El Hadji Malick Diouf","team":"SEN","teamName":"Senegal"},"SEN8":{"name":"Kalidou Koulibaly","team":"SEN","teamName":"Senegal"},"SEN9":{"name":"Idrissa Gana Gueye","team":"SEN","teamName":"Senegal"},"SEN10":{"name":"Pape Matar Sarr","team":"SEN","teamName":"Senegal"},"SEN11":{"name":"Pape Gueye","team":"SEN","teamName":"Senegal"},"SEN12":{"name":"Habib Diarra","team":"SEN","teamName":"Senegal"},"SEN13":{"name":"Formación","team":"SEN","teamName":"Senegal"},"SEN14":{"name":"Lamine Camara","team":"SEN","teamName":"Senegal"},"SEN15":{"name":"Sadio Mané","team":"SEN","teamName":"Senegal"},"SEN16":{"name":"Ismaïla Sarr","team":"SEN","teamName":"Senegal"},"SEN17":{"name":"Boulaye Dia","team":"SEN","teamName":"Senegal"},"SEN18":{"name":"Iliman Ndiaye","team":"SEN","teamName":"Senegal"},"SEN19":{"name":"Nicolas Jackson","team":"SEN","teamName":"Senegal"},"SEN20":{"name":"Krépin Diatta","team":"SEN","teamName":"Senegal"},
+    "SUI1":{"name":"Escudo","team":"SUI","teamName":"Suiza"},"SUI2":{"name":"Gregor Kobel","team":"SUI","teamName":"Suiza"},"SUI3":{"name":"Yvon Mvogo","team":"SUI","teamName":"Suiza"},"SUI4":{"name":"Manuel Akanji","team":"SUI","teamName":"Suiza"},"SUI5":{"name":"Ricardo Rodríguez","team":"SUI","teamName":"Suiza"},"SUI6":{"name":"Nico Elvedi","team":"SUI","teamName":"Suiza"},"SUI7":{"name":"Aurèle Amenda","team":"SUI","teamName":"Suiza"},"SUI8":{"name":"Silvan Widmer","team":"SUI","teamName":"Suiza"},"SUI9":{"name":"Granit Xhaka","team":"SUI","teamName":"Suiza"},"SUI10":{"name":"Denis Zakaria","team":"SUI","teamName":"Suiza"},"SUI11":{"name":"Remo Freuler","team":"SUI","teamName":"Suiza"},"SUI12":{"name":"Fabian Rieder","team":"SUI","teamName":"Suiza"},"SUI13":{"name":"Formación","team":"SUI","teamName":"Suiza"},"SUI14":{"name":"Ardon Jashari","team":"SUI","teamName":"Suiza"},"SUI15":{"name":"Johan Manzambi","team":"SUI","teamName":"Suiza"},"SUI16":{"name":"Michel Aebischer","team":"SUI","teamName":"Suiza"},"SUI17":{"name":"Breel Embolo","team":"SUI","teamName":"Suiza"},"SUI18":{"name":"Rubén Vargas","team":"SUI","teamName":"Suiza"},"SUI19":{"name":"Dan Ndoye","team":"SUI","teamName":"Suiza"},"SUI20":{"name":"Zeki Amdouni","team":"SUI","teamName":"Suiza"},
+    "SWE1":{"name":"Escudo","team":"SWE","teamName":"Suecia"},"SWE2":{"name":"Viktor Johansson","team":"SWE","teamName":"Suecia"},"SWE3":{"name":"Isak Hien","team":"SWE","teamName":"Suecia"},"SWE4":{"name":"Gabriel Gudmundsson","team":"SWE","teamName":"Suecia"},"SWE5":{"name":"Emil Holm","team":"SWE","teamName":"Suecia"},"SWE6":{"name":"Victor Nilsson Lindelöf","team":"SWE","teamName":"Suecia"},"SWE7":{"name":"Gustaf Lagerbielke","team":"SWE","teamName":"Suecia"},"SWE8":{"name":"Lucas Bergvall","team":"SWE","teamName":"Suecia"},"SWE9":{"name":"Hugo Larsson","team":"SWE","teamName":"Suecia"},"SWE10":{"name":"Jesper Karlström","team":"SWE","teamName":"Suecia"},"SWE11":{"name":"Yasin Ayari","team":"SWE","teamName":"Suecia"},"SWE12":{"name":"Mattias Svanberg","team":"SWE","teamName":"Suecia"},"SWE13":{"name":"Formación","team":"SWE","teamName":"Suecia"},"SWE14":{"name":"Daniel Svensson","team":"SWE","teamName":"Suecia"},"SWE15":{"name":"Ken Sema","team":"SWE","teamName":"Suecia"},"SWE16":{"name":"Roony Bardghji","team":"SWE","teamName":"Suecia"},"SWE17":{"name":"Dejan Kulusevski","team":"SWE","teamName":"Suecia"},"SWE18":{"name":"Anthony Elanga","team":"SWE","teamName":"Suecia"},"SWE19":{"name":"Alexander Isak","team":"SWE","teamName":"Suecia"},"SWE20":{"name":"Viktor Gyökeres","team":"SWE","teamName":"Suecia"},
+    "TUN1":{"name":"Escudo","team":"TUN","teamName":"Túnez"},"TUN2":{"name":"Bechir Ben Saïd","team":"TUN","teamName":"Túnez"},"TUN3":{"name":"Aymen Dahmen","team":"TUN","teamName":"Túnez"},"TUN4":{"name":"Van Valery","team":"TUN","teamName":"Túnez"},"TUN5":{"name":"Montassar Talbi","team":"TUN","teamName":"Túnez"},"TUN6":{"name":"Yassine Meriah","team":"TUN","teamName":"Túnez"},"TUN7":{"name":"Ali Abdi","team":"TUN","teamName":"Túnez"},"TUN8":{"name":"Dylan Bronn","team":"TUN","teamName":"Túnez"},"TUN9":{"name":"Ellyes Skhiri","team":"TUN","teamName":"Túnez"},"TUN10":{"name":"Aissa Laïdouni","team":"TUN","teamName":"Túnez"},"TUN11":{"name":"Ferjani Sassi","team":"TUN","teamName":"Túnez"},"TUN12":{"name":"Mohamed Ali Ben Romdhane","team":"TUN","teamName":"Túnez"},"TUN13":{"name":"Formación","team":"TUN","teamName":"Túnez"},"TUN14":{"name":"Hannibal Mejbri","team":"TUN","teamName":"Túnez"},"TUN15":{"name":"Elias Achouri","team":"TUN","teamName":"Túnez"},"TUN16":{"name":"Elias Saad","team":"TUN","teamName":"Túnez"},"TUN17":{"name":"Hazem Mastouri","team":"TUN","teamName":"Túnez"},"TUN18":{"name":"Ismaël Gharbi","team":"TUN","teamName":"Túnez"},"TUN19":{"name":"Sayfallah Ltaief","team":"TUN","teamName":"Túnez"},"TUN20":{"name":"Naïm Sliti","team":"TUN","teamName":"Túnez"},
+    "TUR1":{"name":"Escudo","team":"TUR","teamName":"Turquía"},"TUR2":{"name":"Uğurcan Çakır","team":"TUR","teamName":"Turquía"},"TUR3":{"name":"Mert Müldür","team":"TUR","teamName":"Turquía"},"TUR4":{"name":"Zeki Çelik","team":"TUR","teamName":"Turquía"},"TUR5":{"name":"Abdülkerim Bardakcı","team":"TUR","teamName":"Turquía"},"TUR6":{"name":"Çağlar Söyüncü","team":"TUR","teamName":"Turquía"},"TUR7":{"name":"Merih Demiral","team":"TUR","teamName":"Turquía"},"TUR8":{"name":"Ferdi Kadıoğlu","team":"TUR","teamName":"Turquía"},"TUR9":{"name":"Kaan Ayhan","team":"TUR","teamName":"Turquía"},"TUR10":{"name":"İsmail Yüksek","team":"TUR","teamName":"Turquía"},"TUR11":{"name":"Hakan Çalhanoğlu","team":"TUR","teamName":"Turquía"},"TUR12":{"name":"Orkun Kökçü","team":"TUR","teamName":"Turquía"},"TUR13":{"name":"Formación","team":"TUR","teamName":"Turquía"},"TUR14":{"name":"Arda Güler","team":"TUR","teamName":"Turquía"},"TUR15":{"name":"İrfan Can Kahveci","team":"TUR","teamName":"Turquía"},"TUR16":{"name":"Yunus Akgün","team":"TUR","teamName":"Turquía"},"TUR17":{"name":"Can Uzun","team":"TUR","teamName":"Turquía"},"TUR18":{"name":"Barış Alper Yılmaz","team":"TUR","teamName":"Turquía"},"TUR19":{"name":"Kerem Aktürkoğlu","team":"TUR","teamName":"Turquía"},"TUR20":{"name":"Kenan Yıldız","team":"TUR","teamName":"Turquía"},
+    "URU1":{"name":"Escudo","team":"URU","teamName":"Uruguay"},"URU2":{"name":"Sergio Rochet","team":"URU","teamName":"Uruguay"},"URU3":{"name":"Santiago Mele","team":"URU","teamName":"Uruguay"},"URU4":{"name":"Ronald Araújo","team":"URU","teamName":"Uruguay"},"URU5":{"name":"José María Giménez","team":"URU","teamName":"Uruguay"},"URU6":{"name":"Sebastián Cáceres","team":"URU","teamName":"Uruguay"},"URU7":{"name":"Mathías Olivera","team":"URU","teamName":"Uruguay"},"URU8":{"name":"Guillermo Varela","team":"URU","teamName":"Uruguay"},"URU9":{"name":"Nahitan Nández","team":"URU","teamName":"Uruguay"},"URU10":{"name":"Federico Valverde","team":"URU","teamName":"Uruguay"},"URU11":{"name":"Giorgian de Arrascaeta","team":"URU","teamName":"Uruguay"},"URU12":{"name":"Rodrigo Bentancur","team":"URU","teamName":"Uruguay"},"URU13":{"name":"Formación","team":"URU","teamName":"Uruguay"},"URU14":{"name":"Manuel Ugarte","team":"URU","teamName":"Uruguay"},"URU15":{"name":"Nicolás de la Cruz","team":"URU","teamName":"Uruguay"},"URU16":{"name":"Maxi Araújo","team":"URU","teamName":"Uruguay"},"URU17":{"name":"Darwin Núñez","team":"URU","teamName":"Uruguay"},"URU18":{"name":"Federico Viñas","team":"URU","teamName":"Uruguay"},"URU19":{"name":"Rodrigo Aguirre","team":"URU","teamName":"Uruguay"},"URU20":{"name":"Facundo Pellistri","team":"URU","teamName":"Uruguay"},
+    "USA1":{"name":"Escudo","team":"USA","teamName":"Estados Unidos"},"USA2":{"name":"Matt Freese","team":"USA","teamName":"Estados Unidos"},"USA3":{"name":"Chris Richards","team":"USA","teamName":"Estados Unidos"},"USA4":{"name":"Tim Ream","team":"USA","teamName":"Estados Unidos"},"USA5":{"name":"Mark McKenzie","team":"USA","teamName":"Estados Unidos"},"USA6":{"name":"Alex Freeman","team":"USA","teamName":"Estados Unidos"},"USA7":{"name":"Antonee Robinson","team":"USA","teamName":"Estados Unidos"},"USA8":{"name":"Tyler Adams","team":"USA","teamName":"Estados Unidos"},"USA9":{"name":"Tanner Tessmann","team":"USA","teamName":"Estados Unidos"},"USA10":{"name":"Weston McKennie","team":"USA","teamName":"Estados Unidos"},"USA11":{"name":"Cristian Roldan","team":"USA","teamName":"Estados Unidos"},"USA12":{"name":"Timothy Weah","team":"USA","teamName":"Estados Unidos"},"USA13":{"name":"Formación","team":"USA","teamName":"Estados Unidos"},"USA14":{"name":"Diego Luna","team":"USA","teamName":"Estados Unidos"},"USA15":{"name":"Malik Tillman","team":"USA","teamName":"Estados Unidos"},"USA16":{"name":"Christian Pulisic","team":"USA","teamName":"Estados Unidos"},"USA17":{"name":"Brenden Aaronson","team":"USA","teamName":"Estados Unidos"},"USA18":{"name":"Ricardo Pepi","team":"USA","teamName":"Estados Unidos"},"USA19":{"name":"Haji Wright","team":"USA","teamName":"Estados Unidos"},"USA20":{"name":"Folarin Balogun","team":"USA","teamName":"Estados Unidos"},
+    "UZB1":{"name":"Escudo","team":"UZB","teamName":"Uzbekistán"},"UZB2":{"name":"Utkir Yusupov","team":"UZB","teamName":"Uzbekistán"},"UZB3":{"name":"Farrukh Sayfiev","team":"UZB","teamName":"Uzbekistán"},"UZB4":{"name":"Sherzod Nasrullaev","team":"UZB","teamName":"Uzbekistán"},"UZB5":{"name":"Umar Eshmurodov","team":"UZB","teamName":"Uzbekistán"},"UZB6":{"name":"Husniddin Alioulov","team":"UZB","teamName":"Uzbekistán"},"UZB7":{"name":"Rustam Ashurmatov","team":"UZB","teamName":"Uzbekistán"},"UZB8":{"name":"Khojakbar Alijonov","team":"UZB","teamName":"Uzbekistán"},"UZB9":{"name":"Abdukodir Khusanov","team":"UZB","teamName":"Uzbekistán"},"UZB10":{"name":"Odiljon Hamrobekov","team":"UZB","teamName":"Uzbekistán"},"UZB11":{"name":"Otabek Shukurov","team":"UZB","teamName":"Uzbekistán"},"UZB12":{"name":"Jamshid Iskanderov","team":"UZB","teamName":"Uzbekistán"},"UZB13":{"name":"Formación","team":"UZB","teamName":"Uzbekistán"},"UZB14":{"name":"Azizbek Turgunboev","team":"UZB","teamName":"Uzbekistán"},"UZB15":{"name":"Khojimat Erkinov","team":"UZB","teamName":"Uzbekistán"},"UZB16":{"name":"Eldor Shomurodov","team":"UZB","teamName":"Uzbekistán"},"UZB17":{"name":"Oston Urunov","team":"UZB","teamName":"Uzbekistán"},"UZB18":{"name":"Jaloliddin Masharipov","team":"UZB","teamName":"Uzbekistán"},"UZB19":{"name":"Igor Sergeev","team":"UZB","teamName":"Uzbekistán"},"UZB20":{"name":"Abbosbek Fayzullaev","team":"UZB","teamName":"Uzbekistán"},
+  };
+
+  const TEAMS_ORDER = ["FWC","ALG","ARG","AUS","AUT","BEL","BIH","BRA","CAN","CIV","COD","COL","CPV","CRO","CUW","CZE","ECU","EGY","ENG","ESP","FRA","GER","GHA","HAI","IRN","IRQ","JOR","JPN","KOR","KSA","MAR","MEX","NED","NOR","NZL","PAN","PAR","POR","QAT","RSA","SCO","SEN","SUI","SWE","TUN","TUR","URU","USA","UZB"];
+  const TEAM_NAMES  = {"FWC":"FIFA World Cup","ALG":"Argelia","ARG":"Argentina","AUS":"Australia","AUT":"Austria","BEL":"Bélgica","BIH":"Bosnia y Herzegovina","BRA":"Brasil","CAN":"Canadá","CIV":"Costa de Marfil","COD":"Congo DR","COL":"Colombia","CPV":"Cabo Verde","CRO":"Croacia","CUW":"Curazao","CZE":"República Checa","ECU":"Ecuador","EGY":"Egipto","ENG":"Inglaterra","ESP":"España","FRA":"Francia","GER":"Alemania","GHA":"Ghana","HAI":"Haití","IRN":"Irán","IRQ":"Irak","JOR":"Jordania","JPN":"Japón","KOR":"Corea del Sur","KSA":"Arabia Saudita","MAR":"Marruecos","MEX":"México","NED":"Países Bajos","NOR":"Noruega","NZL":"Nueva Zelanda","PAN":"Panamá","PAR":"Paraguay","POR":"Portugal","QAT":"Qatar","RSA":"Sudáfrica","SCO":"Escocia","SEN":"Senegal","SUI":"Suiza","SWE":"Suecia","TUN":"Túnez","TUR":"Turquía","URU":"Uruguay","USA":"Estados Unidos","UZB":"Uzbekistán"};
+
+  // Build team → stickers map
+  const TEAM_STICKERS = {};
+  TEAMS_ORDER.forEach(tc => {
+    TEAM_STICKERS[tc] = Object.entries(STICKER_DATA)
+      .filter(([, s]) => s.team === tc)
+      .map(([code, s]) => ({ code, name: s.name }));
+  });
+
+  // App state
+  let inventory  = {};
+  let currentFilter = 'todos';
+  let searchVal = '';
+
+  // Load inventory from Firebase (real-time)
+  onValue(ref(db, 'inventory'), snap => {
+    inventory = snap.val() || {};
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('invContainer').style.display = 'block';
+    renderInventory();
+  });
+
+  // Render
+  window.handleSearch = function() {
+    searchVal = document.getElementById('searchInput').value.toLowerCase();
+    renderInventory();
+  };
+
+  window.setFilter = function(f, el) {
+    currentFilter = f;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    renderInventory();
+  };
+
+  function renderInventory() {
+    const container = document.getElementById('invContainer');
+    let html = '';
+
+    TEAMS_ORDER.forEach(tc => {
+      const teamName = TEAM_NAMES[tc];
+      const stickers = TEAM_STICKERS[tc];
+
+      // Search filter
+      if (searchVal) {
+        const teamMatch = teamName.toLowerCase().includes(searchVal) || tc.toLowerCase().includes(searchVal);
+        const stickerMatch = stickers.some(s =>
+          s.code.toLowerCase().includes(searchVal) || s.name.toLowerCase().includes(searchVal)
+        );
+        if (!teamMatch && !stickerMatch) return;
+      }
+
+      let filtered = stickers;
+
+      // Availability filter
+      if (currentFilter === 'disponibles') {
+        filtered = filtered.filter(s => (inventory[s.code]?.qty ?? 0) > 0);
+      }
+
+      if (!filtered.length) return;
+
+      const availCount = stickers.filter(s => (inventory[s.code]?.qty ?? 0) > 0).length;
+
+      html += `<div class="team-block">
+        <div class="team-header">
+          <div class="team-name">${teamName}<span class="team-code">${tc}</span></div>
+          <div class="team-avail">${availCount}/${stickers.length}</div>
+        </div>
+        <div class="sticker-grid">`;
+
+      filtered.forEach(s => {
+        const avail = (inventory[s.code]?.qty ?? 0) > 0;
+        html += `<div class="sticker ${avail ? 'have' : 'none'}" title="${s.name}">
+          <span class="sticker-code">${s.code}</span>
+          <span class="sticker-dot"></span>
+        </div>`;
+      });
+
+      html += `</div></div>`;
+    });
+
+    if (!html) {
+      html = `<div class="empty-state"><div class="empty-icon">🔍</div>No hay resultados</div>`;
+    }
+
+    container.innerHTML = html;
+  }
+
+  // Check codes
+  window.checkCodes = function() {
+    const raw = document.getElementById('checkInput').value;
+    const codes = raw.split(/[\n,]+/).map(c => c.trim().toUpperCase()).filter(Boolean);
+    if (!codes.length) return;
+
+    let html = '';
+    codes.forEach(code => {
+      const data = STICKER_DATA[code];
+      if (!data) {
+        html += `<div class="check-result invalid">
+          <div class="cr-left"><span class="cr-code">${code}</span><span class="cr-name">Código no existe</span></div>
+          <span class="cr-status">—</span>
+        </div>`;
+        return;
+      }
+      const avail = (inventory[code]?.qty ?? 0) > 0;
+      html += `<div class="check-result ${avail ? 'have' : 'none'}">
+        <div class="cr-left">
+          <span class="cr-code">${code}</span>
+          <span class="cr-name">${data.name} · ${data.teamName}</span>
+        </div>
+        <span class="cr-status">${avail ? '✓ Disponible' : '✗ No disponible'}</span>
+      </div>`;
+    });
+
+    document.getElementById('checkResults').innerHTML = html;
+  };
+</script>
+</body>
+</html>
